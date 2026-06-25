@@ -412,6 +412,29 @@
 
                 return matchAgency && matchTopic && matchArea && matchClassCode && matchLugar && matchDate;
             });
+
+            if (filteredData.length === 0 && data.length > 0) {
+                // DEBUG BLOCK FOR ZERO MATCHES
+                let debugRow = data[0];
+                let agValueDebug = debugRow[agencyCol] ? String(debugRow[agencyCol]) : 'undefined';
+                
+                let debugHtml = `
+                    <div style="background-color: #fee2e2; border: 2px solid #ef4444; padding: 20px; border-radius: 8px; margin-top: 20px; color: #7f1d1d; font-family: monospace; font-size: 12px; word-break: break-all;">
+                        <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">Modo de Diagnóstico Técnico (0 resultados)</h3>
+                        <p><strong>Buscando Agencia:</strong> '${agencyName}'</p>
+                        <p><strong>Columna de Agencia detectada:</strong> '${agencyCol}'</p>
+                        <p><strong>Valor de Agencia en la fila 1:</strong> '${agValueDebug}'</p>
+                        <p><strong>Filtros aplicados:</strong> ${JSON.stringify(filters)}</p>
+                        <hr style="border-color: #fca5a5; margin: 10px 0;">
+                        <p><strong>Columnas detectadas:</strong><br>${headers.join('<br>')}</p>
+                    </div>
+                `;
+                
+                const tableContainer = document.querySelector('.bg-white.rounded-xl.shadow-sm.border.border-slate-100.overflow-hidden');
+                if (tableContainer) {
+                    tableContainer.innerHTML = debugHtml;
+                }
+            }
             
             let peopleMap = {};
             let coursesMap = {};
