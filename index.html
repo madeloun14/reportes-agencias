@@ -948,18 +948,16 @@
 
                     // Grab current active filters
                     const topicFilter = document.getElementById('filter-topic') ? document.getElementById('filter-topic').value : '';
-                    const areaFilter = document.getElementById('filter-area') ? document.getElementById('filter-area').value : '';
-                    const classCodeFilter = document.getElementById('filter-class-code') ? document.getElementById('filter-class-code').value : '';
-                    const lugarFilter = document.getElementById('filter-lugar') ? document.getElementById('filter-lugar').value : '';
-
                     agenciesToGenerate.forEach(agency => {
                         // Create base64 token containing all filters
                         const payload = {
                             agency: agency.name,
-                            topic: topicFilter,
-                            area: areaFilter,
-                            classCode: classCodeFilter,
-                            lugar: lugarFilter
+                            topic: document.getElementById('filter-topic') ? document.getElementById('filter-topic').value : '',
+                            area: document.getElementById('filter-area') ? document.getElementById('filter-area').value : '',
+                            classCode: document.getElementById('filter-class-code') ? document.getElementById('filter-class-code').value : '',
+                            lugar: document.getElementById('filter-lugar') ? document.getElementById('filter-lugar').value : '',
+                            dateStart: document.getElementById('filter-date-start') ? document.getElementById('filter-date-start').value : '',
+                            dateEnd: document.getElementById('filter-date-end') ? document.getElementById('filter-date-end').value : ''
                         };
                         const token = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
                         

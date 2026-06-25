@@ -312,6 +312,7 @@
             let areaCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('área') || k.toLowerCase().includes('area'));
             let classCodeCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('código') || k.toLowerCase().includes('codigo'));
             let lugarCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('lugar') || k.toLowerCase().includes('sede'));
+            let dateCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('marca temporal') || k.toLowerCase().includes('fecha') || k.toLowerCase().includes('date'));
             
             let scoreCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('punto') || k.toLowerCase().includes('nota') || k.toLowerCase().includes('calificaci'));
             let nameCol = Object.keys(data[0] || {}).find(k => k.toLowerCase() === 'nombres' || k.toLowerCase() === 'nombre');
@@ -329,7 +330,33 @@
                 let matchClassCode = !filters.classCode || (classCodeCol && row[classCodeCol] && row[classCodeCol].trim().toUpperCase() === filters.classCode.toUpperCase());
                 let matchLugar = !filters.lugar || (lugarCol && row[lugarCol] && row[lugarCol].trim().toUpperCase() === filters.lugar.toUpperCase());
 
-                return matchAgency && matchTopic && matchArea && matchClassCode && matchLugar;
+                let matchDate = true;
+                if (filters.dateStart || filters.dateEnd) {
+                    if (dateCol && row[dateCol]) {
+                        let rawDate = row[dateCol].split(' ')[0];
+                        let rowDateStr = "";
+                        if (rawDate.includes('/')) {
+                            let parts = rawDate.split('/');
+                            if (parts.length === 3) {
+                                let p1 = parts[0].padStart(2, '0');
+                                let p2 = parts[1].padStart(2, '0');
+                                let y = parts[2];
+                                if(y.length === 2) y = "20" + y;
+                                // Assume DD/MM/YYYY
+                                rowDateStr = `${y}-${p2}-${p1}`;
+                            }
+                        } else if (rawDate.includes('-')) {
+                            rowDateStr = rawDate;
+                        }
+
+                        if (rowDateStr) {
+                            if (filters.dateStart && rowDateStr < filters.dateStart) matchDate = false;
+                            if (filters.dateEnd && rowDateStr > filters.dateEnd) matchDate = false;
+                        }
+                    }
+                }
+
+                return matchAgency && matchTopic && matchArea && matchClassCode && matchLugar && matchDate;
             });
             
             let peopleMap = {};
