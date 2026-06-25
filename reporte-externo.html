@@ -291,160 +291,130 @@
             document.getElementById('errorState').classList.remove('hidden');
         }
 
-        async function fetchData() {
+        function fetchData() {
             let finalUrl = GOOGLE_SHEETS_CSV_URL;
-            if (window.location.protocol !== 'https:') {
+            if (window.location.protocol === 'file:') {
                 finalUrl = 'https://corsproxy.io/?' + encodeURIComponent(GOOGLE_SHEETS_CSV_URL);
             }
-
-            try {
-                const response = await fetch(finalUrl);
-                if (!response.ok) throw new Error("HTTP Error " + response.status);
-                
-                const csvText = await response.text();
-                
-                Papa.parse(csvText, {
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        processData(results.data);
-                    },
-                    error: function(err) {
-                        throw new Error("PapaParse Error: " + err.message);
-                    }
+            
+            fetch(finalUrl)
+                .then(r => r.text())
+                .then(csvText => {
+                    Papa.parse(csvText, {
+                        header: false,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            processData(results.data);
+                        },
+                        error: function(err) {
+                            throw new Error("PapaParse Error: " + err.message);
+                        }
+                    });
+                })
+                .catch(err => {
+                    console.error("Error de red:", err);
+                    document.getElementById('loadingState').innerHTML = `<div class="text-center"><i class="fas fa-wifi text-4xl text-red-500 mb-4"></i><h2 class="text-xl font-bold text-slate-800 mb-2">Error de Conexión / Descarga</h2><p class="text-slate-600 mb-4">No se pudo descargar el archivo de Google Sheets.</p><p class="text-sm text-red-500 bg-red-50 p-2 rounded max-w-md mx-auto text-left">${err.message}</p></div>`;
+                    alert("Error de conexión al intentar descargar los datos: " + err.message);
                 });
-            } catch (err) {
-                console.error("Error de red:", err);
-                document.getElementById('loadingState').innerHTML = `<div class="text-center"><i class="fas fa-wifi text-4xl text-red-500 mb-4"></i><h2 class="text-xl font-bold text-slate-800 mb-2">Error de Conexión / Descarga</h2><p class="text-slate-600 mb-4">No se pudo descargar el archivo de Google Sheets.</p><p class="text-sm text-red-500 bg-red-50 p-2 rounded max-w-md mx-auto text-left">${err.message}</p></div>`;
-                alert("Error de conexión al intentar descargar los datos: " + err.message);
-            }
         }
 
         function processData(data) {
             try {
-                if (!data || data.length === 0) {
-                    throw new Error("El archivo CSV está vacío o no se pudo leer correctamente.");
+                if (!data || data.length < 2) {
+                    throw new Error("El archivo CSV está vacío o no tiene suficientes filas.");
                 }
 
-                const normalizeString = s => s ? s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
-                let headers = Object.keys(data[0] || {});
+                // data[0] are the headers, data[1...] are the rows
+                const normalizeString = s => s ? String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
+                let headers = data[0];
                 let normHeaders = headers.map(normalizeString);
 
                 let agencyIdx = normHeaders.findIndex(k => k.includes('agencia') || k.includes('empresa') || k.includes('socio'));
-                let agencyCol = agencyIdx !== -1 ? headers[agencyIdx] : headers[0];
-
                 let topicIdx = normHeaders.findIndex(k => k.includes('tema') || k.includes('curso') || k.includes('capacitaci'));
-                let topicCol = topicIdx !== -1 ? headers[topicIdx] : null;
-
-                let areaIdx = normHeaders.findIndex(k => k.includes('area') || k.includes('rea de trabajo'));
-                let areaCol = areaIdx !== -1 ? headers[areaIdx] : null;
-
+                let areaIdx = normHeaders.findIndex(k => k.includes('area') || k.includes('área'));
                 let classCodeIdx = normHeaders.findIndex(k => k.includes('codigo') || k.includes('digo de'));
-                let classCodeCol = classCodeIdx !== -1 ? headers[classCodeIdx] : null;
-
                 let lugarIdx = normHeaders.findIndex(k => k.includes('lugar') || k.includes('sede'));
-                let lugarCol = lugarIdx !== -1 ? headers[lugarIdx] : null;
-
                 let dateIdx = normHeaders.findIndex(k => k.includes('marca temporal') || k.includes('fecha') || k.includes('date') || k.includes('inicio'));
-                let dateCol = dateIdx !== -1 ? headers[dateIdx] : null;
-                
-                let scoreIdx = normHeaders.findIndex(k => k.includes('punto') || k.includes('nota') || k.includes('calificaci'));
-                let scoreCol = scoreIdx !== -1 ? headers[scoreIdx] : null;
-
-                let nameIdx = normHeaders.findIndex(k => k === 'nombres' || k === 'nombre' || k.includes('nombres'));
-                let nameCol = nameIdx !== -1 ? headers[nameIdx] : null;
-
-                let lastNameIdx = normHeaders.findIndex(k => k.includes('apellido'));
-                let lastNameCol = lastNameIdx !== -1 ? headers[lastNameIdx] : null;
-
-                let cargoIdx = normHeaders.findIndex(k => k.includes('cargo'));
-                let cargoCol = cargoIdx !== -1 ? headers[cargoIdx] : null;
-
                 let dniIdx = normHeaders.findIndex(k => k.includes('dni') || k.includes('documento'));
-                let dniCol = dniIdx !== -1 ? headers[dniIdx] : null;
+                let nameIdx = normHeaders.findIndex(k => k.includes('nombre') && !k.includes('empresa') && !k.includes('capacitaci') && !k.includes('archivo'));
+                let lastNameIdx = normHeaders.findIndex(k => k.includes('apellido'));
+                let scoreIdx = normHeaders.findIndex(k => k.includes('punto') || k.includes('nota') || k.includes('calificaci'));
+                let cargoIdx = normHeaders.findIndex(k => k.includes('cargo') || k.includes('puesto'));
 
-            let filteredData = data.filter(row => {
-                let agValue = row[agencyCol];
-                if (typeof agValue !== 'string') agValue = String(agValue || '');
-                let matchAgency = agValue.trim().toUpperCase() === String(agencyName || '').trim().toUpperCase();
-                
-                let topValue = topicCol ? row[topicCol] : '';
-                if (typeof topValue !== 'string') topValue = String(topValue || '');
-                let matchTopic = !filters.topic || !topicCol || (topValue.trim().toUpperCase() === String(filters.topic || '').trim().toUpperCase());
+                let rows = data.slice(1);
 
-                let areaValue = areaCol ? row[areaCol] : '';
-                if (typeof areaValue !== 'string') areaValue = String(areaValue || '');
-                let matchArea = !filters.area || !areaCol || (areaValue.trim().toUpperCase() === String(filters.area || '').trim().toUpperCase());
+                let filteredData = rows.filter(row => {
+                    // Bypass strictly looking at agencyIdx if it's somehow missing or shifted, just check the whole row as fallback
+                    let rowValues = row.map(v => String(v || '').trim().toUpperCase());
+                    
+                    let targetAgency = String(agencyName || '').trim().toUpperCase();
+                    let matchAgency = targetAgency === '' || rowValues.includes(targetAgency);
 
-                let ccValue = classCodeCol ? row[classCodeCol] : '';
-                if (typeof ccValue !== 'string') ccValue = String(ccValue || '');
-                let matchClassCode = !filters.classCode || !classCodeCol || (ccValue.trim().toUpperCase() === String(filters.classCode || '').trim().toUpperCase());
+                    let targetTopic = String(filters.topic || '').trim().toUpperCase();
+                    let matchTopic = targetTopic === '' || rowValues.includes(targetTopic);
 
-                let lugValue = lugarCol ? row[lugarCol] : '';
-                if (typeof lugValue !== 'string') lugValue = String(lugValue || '');
-                let matchLugar = !filters.lugar || !lugarCol || (lugValue.trim().toUpperCase() === String(filters.lugar || '').trim().toUpperCase());
+                    let targetArea = String(filters.area || '').trim().toUpperCase();
+                    let matchArea = targetArea === '' || rowValues.includes(targetArea);
 
-                let matchDate = true;
-                if (filters.dateStart || filters.dateEnd) {
-                    if (dateCol && row[dateCol]) {
-                        let rawDate = String(row[dateCol]).split(' ')[0];
-                        let rowDateStr = "";
-                        if (rawDate.includes('/')) {
-                            let parts = rawDate.split('/');
-                            if (parts.length === 3) {
-                                let p1 = parts[0].padStart(2, '0');
-                                let p2 = parts[1].padStart(2, '0');
-                                let y = parts[2];
-                                if(y.length === 2) y = "20" + y;
-                                // Assume DD/MM/YYYY
-                                rowDateStr = `${y}-${p2}-${p1}`;
+                    let targetClassCode = String(filters.classCode || '').trim().toUpperCase();
+                    let matchClassCode = targetClassCode === '' || rowValues.includes(targetClassCode);
+
+                    let targetLugar = String(filters.lugar || '').trim().toUpperCase();
+                    let matchLugar = targetLugar === '' || rowValues.includes(targetLugar);
+
+                    let matchDate = true;
+                    if (filters.dateStart || filters.dateEnd) {
+                        let dateValue = dateIdx !== -1 ? row[dateIdx] : '';
+                        if (dateValue) {
+                            let parts = String(dateValue).trim().split(' ')[0].split('/');
+                            let rowDateStr = parts.length === 3 ? `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}` : '';
+                            if (rowDateStr) {
+                                if (filters.dateStart && rowDateStr < filters.dateStart) matchDate = false;
+                                if (filters.dateEnd && rowDateStr > filters.dateEnd) matchDate = false;
                             }
-                        } else if (rawDate.includes('-')) {
-                            rowDateStr = rawDate;
-                        }
-
-                        if (rowDateStr) {
-                            if (filters.dateStart && rowDateStr < filters.dateStart) matchDate = false;
-                            if (filters.dateEnd && rowDateStr > filters.dateEnd) matchDate = false;
                         }
                     }
+
+                    return matchAgency && matchTopic && matchArea && matchClassCode && matchLugar && matchDate;
+                });
+
+                if (filteredData.length === 0 && rows.length > 0) {
+                const tableContainer = document.querySelector('.bg-white.rounded-xl.shadow-sm.border.border-slate-100.overflow-hidden');
+                if (tableContainer) {
+                    tableContainer.innerHTML = `
+                        <div style="padding: 30px; text-align: center;">
+                            <div style="background-color: #fee2e2; border: 2px solid #ef4444; padding: 20px; border-radius: 12px; display: inline-block; max-width: 800px; text-align: left;">
+                                <h3 style="color: #b91c1c; font-size: 18px; font-weight: bold; margin-bottom: 15px;">⚠️ Información no encontrada</h3>
+                                <p style="color: #7f1d1d; font-size: 15px; margin-bottom: 15px;">No se encontraron registros para la agencia <strong>${agencyName}</strong> con los filtros actuales.</p>
+                                <p style="color: #7f1d1d; font-size: 15px;">Filtros: ${JSON.stringify(filters)}</p>
+                            </div>
+                        </div>
+                    `;
                 }
-
-                return matchAgency && matchTopic && matchArea && matchClassCode && matchLugar && matchDate;
-            });
-
-            if (filteredData.length === 0 && data.length > 0) {
-                // DEBUG BLOCK FOR ZERO MATCHES
-                let debugRow = data[0];
-                let agValueDebug = debugRow[agencyCol] ? String(debugRow[agencyCol]) : 'undefined';
-                
-                alert(`--- DIAGNÓSTICO TÉCNICO ---
-Cero resultados encontrados. Por favor envíame una foto de este mensaje:
-
-1. Buscando Agencia: '${agencyName}'
-2. Columna Agencia Detectada: '${agencyCol}'
-3. Valor Agencia (Fila 1): '${agValueDebug}'
-4. Filtros Activos: ${JSON.stringify(filters)}
-5. Total filas en CSV: ${data.length}`);
+                return;
             }
 
             let peopleMap = {};
             let coursesMap = {};
 
             filteredData.forEach(row => {
-                let fName = nameCol ? (row[nameCol] || '').trim() : '';
-                let lName = lastNameCol ? (row[lastNameCol] || '').trim() : '';
-                let fullName = (fName + ' ' + lName).trim();
-                if(!fullName) fullName = "Desconocido";
+                let dni = dniIdx !== -1 && row[dniIdx] ? String(row[dniIdx]).trim() : 'Sin DNI';
+                let fName = nameIdx !== -1 && row[nameIdx] ? String(row[nameIdx]).trim() : '';
+                let lName = lastNameIdx !== -1 && row[lastNameIdx] ? String(row[lastNameIdx]).trim() : '';
+                let fullName = (fName + " " + lName).trim() || 'Desconocido';
+                
+                let cargo = cargoIdx !== -1 && row[cargoIdx] ? String(row[cargoIdx]).trim() : '-';
+                
+                let scoreRaw = scoreIdx !== -1 && row[scoreIdx] ? String(row[scoreIdx]) : '0';
+                let score = 0;
+                if (scoreRaw.includes('/')) {
+                    score = parseFloat(scoreRaw.split('/')[0]);
+                } else {
+                    score = parseFloat(scoreRaw);
+                }
+                if (isNaN(score)) score = 0;
 
-                let scoreStr = scoreCol && row[scoreCol] ? row[scoreCol] : '0';
-                if (typeof scoreStr === 'string' && scoreStr.includes('/')) scoreStr = scoreStr.split('/')[0];
-                let score = parseFloat(scoreStr);
-                if(isNaN(score)) score = 0;
-
-                let course = topicCol && row[topicCol] ? row[topicCol].trim() : 'General';
-                let cargo = cargoCol && row[cargoCol] ? row[cargoCol].trim() : '-';
-                let dni = dniCol && row[dniCol] ? row[dniCol].trim() : '-';
+                let course = topicIdx !== -1 && row[topicIdx] ? String(row[topicIdx]).trim() : 'General';
 
                 if(!peopleMap[fullName]) {
                     peopleMap[fullName] = { dni: dni, name: fullName, cargo: cargo, totalScore: 0, count: 0 };
