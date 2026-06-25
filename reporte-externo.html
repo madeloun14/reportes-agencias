@@ -324,47 +324,56 @@
                     throw new Error("El archivo CSV está vacío o no tiene suficientes filas.");
                 }
 
-                // data[0] are the headers, data[1...] are the rows
                 const normalizeString = s => s ? String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
                 let headers = data[0];
-                let normHeaders = headers.map(normalizeString);
 
-                let agencyIdx = normHeaders.findIndex(k => k.includes('agencia') || k.includes('empresa') || k.includes('socio'));
-                let topicIdx = normHeaders.findIndex(k => k.includes('tema') || k.includes('curso') || k.includes('capacitaci'));
-                let areaIdx = normHeaders.findIndex(k => k.includes('area') || k.includes('área'));
-                let classCodeIdx = normHeaders.findIndex(k => k.includes('codigo') || k.includes('digo de'));
-                let lugarIdx = normHeaders.findIndex(k => k.includes('lugar') || k.includes('sede'));
-                let dateIdx = normHeaders.findIndex(k => k.includes('marca temporal') || k.includes('fecha') || k.includes('date') || k.includes('inicio'));
-                let dniIdx = normHeaders.findIndex(k => k.includes('dni') || k.includes('documento'));
-                let nameIdx = normHeaders.findIndex(k => k.includes('nombre') && !k.includes('empresa') && !k.includes('capacitaci') && !k.includes('archivo'));
-                let lastNameIdx = normHeaders.findIndex(k => k.includes('apellido'));
-                let scoreIdx = normHeaders.findIndex(k => k.includes('punto') || k.includes('nota') || k.includes('calificaci'));
-                let cargoIdx = normHeaders.findIndex(k => k.includes('cargo') || k.includes('puesto'));
+                function getIndex(keywords, defaultIdx) {
+                    const foundIdx = headers.findIndex(h => {
+                        const hNormalized = normalizeString(h);
+                        if (!hNormalized) return false;
+                        return keywords.some(k => {
+                            const kNormalized = normalizeString(k);
+                            return hNormalized.includes(kNormalized);
+                        });
+                    });
+                    return foundIdx !== -1 ? foundIdx : defaultIdx;
+                }
+
+                const map = {
+                    date: getIndex(['marca temporal', 'fecha', 'date', 'inicio'], 2),
+                    score: getIndex(['total de puntos', 'puntos', 'calificaci', 'nota'], 5),
+                    dni: getIndex(['dni', 'documento', 'identidad'], 8),
+                    apellidos: getIndex(['apellidos', 'last name'], 11),
+                    nombres: getIndex(['nombres', 'nombre'], 14),
+                    empresa: getIndex(['agencia', 'empresa', 'socio'], 17),
+                    area: getIndex(['area', 'área'], 20),
+                    cargo: getIndex(['cargo', 'puesto'], 23),
+                    lugar: getIndex(['lugar', 'sede'], 26),
+                    topic: getIndex(['tema', 'curso', 'capacitaci'], 32),
+                    classCode: getIndex(['codigo', 'digo de'], 35)
+                };
 
                 let rows = data.slice(1);
 
                 let filteredData = rows.filter(row => {
-                    // Bypass strictly looking at agencyIdx if it's somehow missing or shifted, just check the whole row as fallback
-                    let rowValues = row.map(v => String(v || '').trim().toUpperCase());
-                    
                     let targetAgency = String(agencyName || '').trim().toUpperCase();
-                    let matchAgency = targetAgency === '' || rowValues.includes(targetAgency);
+                    let matchAgency = targetAgency === '' || (map.empresa !== -1 && String(row[map.empresa] || '').trim().toUpperCase() === targetAgency);
 
                     let targetTopic = String(filters.topic || '').trim().toUpperCase();
-                    let matchTopic = targetTopic === '' || rowValues.includes(targetTopic);
+                    let matchTopic = targetTopic === '' || (map.topic !== -1 && String(row[map.topic] || '').trim().toUpperCase() === targetTopic);
 
                     let targetArea = String(filters.area || '').trim().toUpperCase();
-                    let matchArea = targetArea === '' || rowValues.includes(targetArea);
+                    let matchArea = targetArea === '' || (map.area !== -1 && String(row[map.area] || '').trim().toUpperCase() === targetArea);
 
                     let targetClassCode = String(filters.classCode || '').trim().toUpperCase();
-                    let matchClassCode = targetClassCode === '' || rowValues.includes(targetClassCode);
+                    let matchClassCode = targetClassCode === '' || (map.classCode !== -1 && String(row[map.classCode] || '').trim().toUpperCase() === targetClassCode);
 
                     let targetLugar = String(filters.lugar || '').trim().toUpperCase();
-                    let matchLugar = targetLugar === '' || rowValues.includes(targetLugar);
+                    let matchLugar = targetLugar === '' || (map.lugar !== -1 && String(row[map.lugar] || '').trim().toUpperCase() === targetLugar);
 
                     let matchDate = true;
                     if (filters.dateStart || filters.dateEnd) {
-                        let dateValue = dateIdx !== -1 ? row[dateIdx] : '';
+                        let dateValue = map.date !== -1 ? row[map.date] : '';
                         if (dateValue) {
                             let parts = String(dateValue).trim().split(' ')[0].split('/');
                             let rowDateStr = parts.length === 3 ? `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}` : '';
@@ -398,14 +407,14 @@
             let coursesMap = {};
 
             filteredData.forEach(row => {
-                let dni = dniIdx !== -1 && row[dniIdx] ? String(row[dniIdx]).trim() : 'Sin DNI';
-                let fName = nameIdx !== -1 && row[nameIdx] ? String(row[nameIdx]).trim() : '';
-                let lName = lastNameIdx !== -1 && row[lastNameIdx] ? String(row[lastNameIdx]).trim() : '';
+                let dni = map.dni !== -1 && row[map.dni] ? String(row[map.dni]).trim() : 'Sin DNI';
+                let fName = map.nombres !== -1 && row[map.nombres] ? String(row[map.nombres]).trim() : '';
+                let lName = map.apellidos !== -1 && row[map.apellidos] ? String(row[map.apellidos]).trim() : '';
                 let fullName = (fName + " " + lName).trim() || 'Desconocido';
                 
-                let cargo = cargoIdx !== -1 && row[cargoIdx] ? String(row[cargoIdx]).trim() : '-';
+                let cargo = map.cargo !== -1 && row[map.cargo] ? String(row[map.cargo]).trim() : '-';
                 
-                let scoreRaw = scoreIdx !== -1 && row[scoreIdx] ? String(row[scoreIdx]) : '0';
+                let scoreRaw = map.score !== -1 && row[map.score] ? String(row[map.score]) : '0';
                 let score = 0;
                 if (scoreRaw.includes('/')) {
                     score = parseFloat(scoreRaw.split('/')[0]);
@@ -414,7 +423,7 @@
                 }
                 if (isNaN(score)) score = 0;
 
-                let course = topicIdx !== -1 && row[topicIdx] ? String(row[topicIdx]).trim() : 'General';
+                let course = map.topic !== -1 && row[map.topic] ? String(row[map.topic]).trim() : 'General';
 
                 if(!peopleMap[fullName]) {
                     peopleMap[fullName] = { dni: dni, name: fullName, cargo: cargo, totalScore: 0, count: 0 };
