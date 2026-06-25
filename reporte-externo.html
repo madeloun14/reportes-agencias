@@ -326,41 +326,63 @@
                     throw new Error("El archivo CSV está vacío o no se pudo leer correctamente.");
                 }
 
-                let agencyCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('agencia') || k.toLowerCase().includes('empresa') || k.toLowerCase().includes('socio'));
-                let topicCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('tema') || k.toLowerCase().includes('curso') || k.toLowerCase().includes('capacitaci'));
-                let areaCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('área') || k.toLowerCase().includes('area'));
-                let classCodeCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('código') || k.toLowerCase().includes('codigo'));
-                let lugarCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('lugar') || k.toLowerCase().includes('sede'));
-                let dateCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('marca temporal') || k.toLowerCase().includes('fecha') || k.toLowerCase().includes('date'));
+                const normalizeString = s => s ? s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
+                let headers = Object.keys(data[0] || {});
+                let normHeaders = headers.map(normalizeString);
+
+                let agencyIdx = normHeaders.findIndex(k => k.includes('agencia') || k.includes('empresa') || k.includes('socio'));
+                let agencyCol = agencyIdx !== -1 ? headers[agencyIdx] : headers[0];
+
+                let topicIdx = normHeaders.findIndex(k => k.includes('tema') || k.includes('curso') || k.includes('capacitaci'));
+                let topicCol = topicIdx !== -1 ? headers[topicIdx] : null;
+
+                let areaIdx = normHeaders.findIndex(k => k.includes('area') || k.includes('rea de trabajo'));
+                let areaCol = areaIdx !== -1 ? headers[areaIdx] : null;
+
+                let classCodeIdx = normHeaders.findIndex(k => k.includes('codigo') || k.includes('digo de'));
+                let classCodeCol = classCodeIdx !== -1 ? headers[classCodeIdx] : null;
+
+                let lugarIdx = normHeaders.findIndex(k => k.includes('lugar') || k.includes('sede'));
+                let lugarCol = lugarIdx !== -1 ? headers[lugarIdx] : null;
+
+                let dateIdx = normHeaders.findIndex(k => k.includes('marca temporal') || k.includes('fecha') || k.includes('date') || k.includes('inicio'));
+                let dateCol = dateIdx !== -1 ? headers[dateIdx] : null;
                 
-                let scoreCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('punto') || k.toLowerCase().includes('nota') || k.toLowerCase().includes('calificaci'));
-                let nameCol = Object.keys(data[0] || {}).find(k => k.toLowerCase() === 'nombres' || k.toLowerCase() === 'nombre');
-                let lastNameCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('apellido'));
-                let cargoCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('cargo'));
-                let dniCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('dni') || k.toLowerCase().includes('documento'));
-                
-                if(!agencyCol) agencyCol = Object.keys(data[0] || {})[0];
+                let scoreIdx = normHeaders.findIndex(k => k.includes('punto') || k.includes('nota') || k.includes('calificaci'));
+                let scoreCol = scoreIdx !== -1 ? headers[scoreIdx] : null;
+
+                let nameIdx = normHeaders.findIndex(k => k === 'nombres' || k === 'nombre' || k.includes('nombres'));
+                let nameCol = nameIdx !== -1 ? headers[nameIdx] : null;
+
+                let lastNameIdx = normHeaders.findIndex(k => k.includes('apellido'));
+                let lastNameCol = lastNameIdx !== -1 ? headers[lastNameIdx] : null;
+
+                let cargoIdx = normHeaders.findIndex(k => k.includes('cargo'));
+                let cargoCol = cargoIdx !== -1 ? headers[cargoIdx] : null;
+
+                let dniIdx = normHeaders.findIndex(k => k.includes('dni') || k.includes('documento'));
+                let dniCol = dniIdx !== -1 ? headers[dniIdx] : null;
 
             let filteredData = data.filter(row => {
                 let agValue = row[agencyCol];
                 if (typeof agValue !== 'string') agValue = String(agValue || '');
-                let matchAgency = agValue.trim().toUpperCase() === String(agencyName || '').toUpperCase();
+                let matchAgency = agValue.trim().toUpperCase() === String(agencyName || '').trim().toUpperCase();
                 
-                let topValue = row[topicCol];
+                let topValue = topicCol ? row[topicCol] : '';
                 if (typeof topValue !== 'string') topValue = String(topValue || '');
-                let matchTopic = !filters.topic || (topicCol && topValue.trim().toUpperCase() === String(filters.topic || '').toUpperCase());
+                let matchTopic = !filters.topic || !topicCol || (topValue.trim().toUpperCase() === String(filters.topic || '').trim().toUpperCase());
 
-                let areaValue = row[areaCol];
+                let areaValue = areaCol ? row[areaCol] : '';
                 if (typeof areaValue !== 'string') areaValue = String(areaValue || '');
-                let matchArea = !filters.area || (areaCol && areaValue.trim().toUpperCase() === String(filters.area || '').toUpperCase());
+                let matchArea = !filters.area || !areaCol || (areaValue.trim().toUpperCase() === String(filters.area || '').trim().toUpperCase());
 
-                let ccValue = row[classCodeCol];
+                let ccValue = classCodeCol ? row[classCodeCol] : '';
                 if (typeof ccValue !== 'string') ccValue = String(ccValue || '');
-                let matchClassCode = !filters.classCode || (classCodeCol && ccValue.trim().toUpperCase() === String(filters.classCode || '').toUpperCase());
+                let matchClassCode = !filters.classCode || !classCodeCol || (ccValue.trim().toUpperCase() === String(filters.classCode || '').trim().toUpperCase());
 
-                let lugValue = row[lugarCol];
+                let lugValue = lugarCol ? row[lugarCol] : '';
                 if (typeof lugValue !== 'string') lugValue = String(lugValue || '');
-                let matchLugar = !filters.lugar || (lugarCol && lugValue.trim().toUpperCase() === String(filters.lugar || '').toUpperCase());
+                let matchLugar = !filters.lugar || !lugarCol || (lugValue.trim().toUpperCase() === String(filters.lugar || '').trim().toUpperCase());
 
                 let matchDate = true;
                 if (filters.dateStart || filters.dateEnd) {
