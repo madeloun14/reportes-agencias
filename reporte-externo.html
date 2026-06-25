@@ -129,7 +129,7 @@
             </div>
 
             <!-- KPIs -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 border-l-4 border-l-win-orange hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Total Evaluaciones</h3>
@@ -150,16 +150,6 @@
                     <div class="text-3xl font-bold text-slate-800" id="kpiAverage">0.00</div>
                 </div>
 
-                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Tasa de Asistencia</h3>
-                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
-                            <i class="fa-solid fa-calendar-check"></i>
-                        </div>
-                    </div>
-                    <div class="text-3xl font-bold text-slate-800" id="kpiAttendance">0%</div>
-                </div>
-
                 <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 border-l-4 border-l-green-500 hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Aprobados</h3>
@@ -170,6 +160,19 @@
                     <div class="flex items-baseline gap-2">
                         <div class="text-3xl font-bold text-slate-800" id="kpiPassed">0</div>
                         <span class="text-sm font-medium text-slate-500" id="kpiPassedPercent">(0%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALERTS SECTION -->
+            <div id="criticalCourseAlert" class="hidden mb-8 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg flex items-center justify-between shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-red-800">Atención Requerida</h4>
+                        <p class="text-sm text-red-700" id="criticalCourseText">Cargando datos...</p>
                     </div>
                 </div>
             </div>
@@ -203,6 +206,25 @@
                                 <!-- JS Injected -->
                             </ul>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXTRA CHARTS ROW -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Distribución -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex flex-col items-center">
+                    <h3 class="text-lg font-outfit font-bold text-slate-800 mb-6 self-start">Distribución de Notas</h3>
+                    <div class="relative h-64 w-full flex justify-center">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Evolución -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-outfit font-bold text-slate-800 mb-6">Evolución en el Tiempo</h3>
+                    <div class="relative h-64 w-full">
+                        <canvas id="trendChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -345,13 +367,13 @@
                     score: getIndex(['total de puntos', 'puntos', 'calificaci', 'nota'], 5),
                     dni: getIndex(['dni', 'documento', 'identidad'], 8),
                     apellidos: getIndex(['apellidos', 'last name'], 11),
-                    nombres: getIndex(['nombres', 'nombre'], 14),
-                    empresa: getIndex(['agencia', 'empresa', 'socio'], 17),
-                    area: getIndex(['area', 'área'], 20),
-                    cargo: getIndex(['cargo', 'puesto'], 23),
-                    lugar: getIndex(['lugar', 'sede'], 26),
-                    topic: getIndex(['tema', 'curso', 'capacitaci'], 32),
-                    classCode: getIndex(['codigo', 'digo de'], 35)
+                    nombres: getIndex(['nombres', 'first name', 'nombre completo'], 14),
+                    empresa: getIndex(['selecciona a la empresa', 'empresa', 'agencia', 'socio'], 17),
+                    area: getIndex(['area', 'área', 'área de trabajo'], 20),
+                    cargo: getIndex(['cargo', 'puesto', 'rol'], 23),
+                    lugar: getIndex(['lugar de trabajo', 'lugar', 'sede'], 26),
+                    topic: getIndex(['nombre de la capacitaci', 'tema', 'curso'], 32),
+                    classCode: getIndex(['codigo', 'digo de tu formaci'], 35)
                 };
 
                 let rows = data.slice(1);
@@ -454,8 +476,11 @@
 
             calculateKPIs();
             renderChart();
+            renderDistributionChart();
+            renderTrendChart();
             renderTable();
             renderHighlights();
+            renderCriticalCourse();
 
             document.getElementById('loadingState').classList.add('hidden');
             document.getElementById('dashboardContent').classList.remove('hidden');
@@ -484,8 +509,7 @@
             const overallAvg = totalAvgSum / globalAggregatedPeople.length;
             const passedRate = (passedCount / globalAggregatedPeople.length) * 100;
 
-            document.getElementById('kpiAverage').textContent = overallAvg.toFixed(1);
-            document.getElementById('kpiAttendance').textContent = '100%'; 
+            document.getElementById('kpiAverage').textContent = overallAvg.toFixed(2);
             document.getElementById('kpiPassed').textContent = passedCount;
             document.getElementById('kpiPassedPercent').textContent = `(${passedRate.toFixed(1)}%)`;
         }
@@ -525,6 +549,132 @@
                     }
                 }
             });
+        }
+
+        let distChartInstance = null;
+        function renderDistributionChart() {
+            if (globalAggregatedPeople.length === 0) return;
+
+            let sobresaliente = 0; // 18-20
+            let regular = 0; // 14-17
+            let deficiente = 0; // 0-13
+
+            globalAggregatedPeople.forEach(p => {
+                if (p.avg >= 18) sobresaliente++;
+                else if (p.avg >= 14) regular++;
+                else deficiente++;
+            });
+
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+            if (distChartInstance) distChartInstance.destroy();
+
+            distChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sobresaliente (18-20)', 'Regular (14-17)', 'Deficiente (0-13)'],
+                    datasets: [{
+                        data: [sobresaliente, regular, deficiente],
+                        backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        let trendChartInstance = null;
+        function renderTrendChart() {
+            if (globalAggregatedPeople.length === 0) return;
+
+            // Agrupar por fecha
+            const dateMap = {};
+            globalAggregatedPeople.forEach(p => {
+                if (!p.date || p.date === 'Sin fecha') return;
+                
+                // Normalizamos la fecha (asumiendo que viene como D/M/YYYY o similar desde parseo)
+                // Si la fecha tiene horas, la cortamos
+                const dKey = p.date.split(' ')[0]; 
+
+                if (!dateMap[dKey]) {
+                    dateMap[dKey] = { sum: 0, count: 0 };
+                }
+                dateMap[dKey].sum += p.avg;
+                dateMap[dKey].count++;
+            });
+
+            // Ordenar fechas (es rudimentario pero funciona si el formato es estándar)
+            const sortedDates = Object.keys(dateMap).sort((a,b) => {
+                let pa = a.split('/');
+                let pb = b.split('/');
+                if(pa.length === 3 && pb.length === 3) {
+                    let da = new Date(pa[2], pa[1]-1, pa[0]);
+                    let db = new Date(pb[2], pb[1]-1, pb[0]);
+                    return da - db;
+                }
+                return a.localeCompare(b);
+            });
+
+            const labels = sortedDates;
+            const data = sortedDates.map(d => (dateMap[d].sum / dateMap[d].count).toFixed(2));
+
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            if (trendChartInstance) trendChartInstance.destroy();
+
+            trendChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Promedio Diario',
+                        data: data,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 20,
+                            grid: { color: '#f1f5f9' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderCriticalCourse() {
+            const alertEl = document.getElementById('criticalCourseAlert');
+            if (globalCourseAverages.length === 0) {
+                alertEl.classList.add('hidden');
+                return;
+            }
+
+            // Find course with highest fail rate or lowest average
+            // Let's use lowest average for simplicity
+            const sorted = [...globalCourseAverages].sort((a,b) => a.avg - b.avg);
+            const lowest = sorted[0];
+
+            if (lowest && lowest.avg < 14) {
+                document.getElementById('criticalCourseText').innerHTML = `El curso <strong>${lowest.course}</strong> tiene el promedio más bajo de la agencia (<strong>${lowest.avg.toFixed(1)}</strong>). Te recomendamos reforzar esta capacitación.`;
+                alertEl.classList.remove('hidden');
+            } else {
+                alertEl.classList.add('hidden');
+            }
         }
 
         function renderTable(searchTerm = '') {
