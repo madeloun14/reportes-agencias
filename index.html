@@ -1,0 +1,3289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIN Internet | DASHBOARD DE CAPACITACIONES | MADE</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS (XLSX.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        tailwind.config = { darkMode: 'class',
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        win: {
+                            orange: '#FF5A0A',
+                            orangeHover: '#e04f08',
+                            yellow: '#ffc200',
+                            yellowHover: '#e6ae00',
+                            dark: '#0f172a',
+                            navy: '#1e293b',
+                            lightBg: '#f8fafc',
+                            cardBg: '#ffffff',
+                            success: '#10b981',
+                            warning: '#f59e0b',
+                            danger: '#ef4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .font-outfit {
+            font-family: 'Outfit', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .active-tab {
+            border-bottom: 3px solid #FF5A0A;
+            color: #FF5A0A;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 min-h-screen flex flex-col">
+
+    <!-- TOP HEADER -->
+    <header class="bg-win-dark text-white border-b-4 border-win-orange static z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- Logos and Title -->
+            <div class="flex items-center gap-5 w-full md:w-auto">
+                <!-- Official WIN logo SVG -->
+                <div class="flex-shrink-0">
+                    <img src="win_logo.png" class="h-11 w-auto object-contain block dark:hidden" alt="WIN Logo">
+                    <img src="win_logo_dark.png" class="h-11 w-auto object-contain hidden dark:block" alt="WIN Logo">
+                </div>
+                <!-- Vertical Line -->
+                <div class="h-10 w-[2px] bg-slate-700 hidden sm:block"></div>
+                <!-- CFD Logo SVG -->
+                <div class="hidden sm:block">
+                    <svg viewBox="0 0 800 200" class="h-10 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <text x="20" y="145" font-family="'Outfit', sans-serif" font-weight="900" font-size="120" fill="#ffffff" letter-spacing="-2">CFD</text>
+                        <line x1="310" y1="20" x2="310" y2="170" stroke="#FF5A0A" stroke-width="12" stroke-linecap="round" />
+                        <text x="350" y="75" font-family="'Inter', sans-serif" font-weight="400" font-size="34" fill="#cbd5e1">Centro de</text>
+                        <text x="350" y="120" font-family="'Inter', sans-serif" font-weight="700" font-size="34" fill="#ffffff">formación y desarrollo</text>
+                        <text x="350" y="165" font-family="'Outfit', sans-serif" font-weight="800" font-size="34" fill="#FF5A0A">WIN</text>
+                    </svg>
+                </div>
+            </div>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- XLSX library para lectura de Excel local -->
+            <div class="text-right w-full md:w-auto flex flex-row md:flex-col items-center justify-between md:justify-end gap-2">
+                <h1 class="font-outfit text-lg font-bold tracking-wide text-win-yellow flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line"></i> DASHBOARD DE CAPACITACIONES | MADE
+                </h1>
+                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Control de Cobertura y Evaluación de Canales</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENT WRAPPER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full flex flex-col gap-6">
+        
+        <!-- ROW 1: CONTROLS, UPLOAD & INFO -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- EXCEL INGESTION CARD (2 Cols on lg) -->
+            <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col gap-4">
+                <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3">
+                    <h2 class="font-outfit text-base font-bold text-win-navy flex items-center gap-2">
+                        <i class="fa-solid fa-file-excel text-green-600 text-lg"></i> 1. Cargar Datos de Capacitación y Agencias
+                    </h2>
+                    <div class="flex gap-2">
+                        <button onclick="loadDemoData()" class="px-3 py-1.5 text-xs font-semibold text-win-orange bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-lg transition duration-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Precargar Demo
+                        </button>
+                        <button onclick="downloadTemplates()" class="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg transition duration-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-download"></i> Descargar Plantillas
+                        </button>
+                    </div>
+                </div>
+
+                <!-- DUAL UPLOAD PANELS -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <!-- UPLOADER 1: CAPACITACIONES (FORMS) -->
+                    <div class="flex flex-col gap-2">
+                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-win-orange"></span> Sincronizar Google Sheets (Capacitaciones)
+                        </span>
+                        
+                        <div class="border-2 border-dashed border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 text-center flex flex-col items-center justify-center min-h-[140px] relative group">
+                            <div class="w-full flex flex-col gap-3">
+                                <label class="text-xs font-semibold text-slate-700 dark:text-slate-300 text-left">URL Pública de Google Sheets (CSV)</label>
+                                <input type="text" id="google-sheets-url" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md text-xs bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-win-orange text-slate-700 dark:text-slate-200" placeholder="Ej: https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=0">
+                                <button onclick="syncGoogleSheets(this)" class="bg-win-orange text-white px-4 py-2 rounded-md font-bold text-xs hover:bg-orange-600 transition shadow flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-cloud-arrow-down"></i> Sincronizar
+                                </button>
+                            </div>
+                            <div id="status-training" class="absolute bottom-2 left-2 right-2 text-center text-[11px] font-medium text-emerald-600 bg-emerald-50 py-1 px-2 rounded-md hidden border border-emerald-100">
+                                <i class="fa-solid fa-circle-check"></i> Sincronización exitosa
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- UPLOADER 2: AGENCIA ACTIVE LIST (01 LISTA AGENCIAS) -->
+                    <div class="flex flex-col gap-2">
+                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-win-yellow"></span> Lista de Agencias Activas (01 Lista agencias)
+                        </span>
+                        <input type="file" id="file-roster" class="hidden" onchange="handleFileSelect(event, 'roster')">
+                        <div id="dropzone-roster" 
+                             class="border-2 border-dashed border-slate-200 dark:border-slate-600 hover:border-win-yellow bg-slate-50 dark:bg-slate-800/50/50 hover:bg-yellow-50/10 rounded-xl p-5 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center min-h-[140px] relative group"
+                             ondragover="handleDragOver(event)"
+                             ondragleave="handleDragLeave('dropzone-roster')"
+                             ondrop="handleDrop(event, 'roster')"
+                             onclick="document.getElementById('file-roster').click()">
+                            <div class="w-full h-full flex flex-col items-center justify-center">
+                                <i class="fa-solid fa-building-circle-check text-3xl text-slate-400 dark:text-slate-500 group-hover:text-win-yellow transition duration-200 mb-2"></i>
+                                <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">Arrastra aquí o haz clic para subir</p>
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Excel de Agencias Activas</p>
+                            </div>
+                            <div id="status-roster" class="absolute bottom-2 left-2 right-2 text-center text-[11px] font-medium text-emerald-600 bg-emerald-50 py-1 px-2 rounded-md hidden border border-emerald-100">
+                                <i class="fa-solid fa-circle-check"></i> Agencias Sincronizadas
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FILE MAPPING INFO / LOG -->
+                <div id="mapping-summary" class="hidden text-xs bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-xl p-3 text-slate-600 dark:text-slate-300 flex flex-col gap-1.5">
+                    <div class="flex justify-between items-center">
+                        <p class="font-bold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-info-circle text-win-orange"></i> Mapeo de Columnas (Quiz de Forms):</p>
+                        <span id="duplicate-warning" class="hidden px-2 py-0.5 bg-win-orange/10 text-win-orange border border-win-orange/20 text-[10px] font-bold rounded"></span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 mt-1">
+                        <div class="bg-white dark:bg-slate-800 p-1.5 border border-slate-200 dark:border-slate-600 rounded text-center">
+                            <span class="block text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">Nombre Completo</span>
+                            <span id="map-name" class="font-semibold text-slate-700 dark:text-slate-300 truncate block text-[10px]">-</span>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-1.5 border border-slate-200 dark:border-slate-600 rounded text-center">
+                            <span class="block text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">Empresa (Agencia)</span>
+                            <span id="map-channel" class="font-semibold text-slate-700 dark:text-slate-300 truncate block text-[10px]">-</span>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-1.5 border border-slate-200 dark:border-slate-600 rounded text-center">
+                            <span class="block text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">Área</span>
+                            <span id="map-area" class="font-semibold text-slate-700 dark:text-slate-300 truncate block text-[10px]">-</span>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-1.5 border border-slate-200 dark:border-slate-600 rounded text-center">
+                            <span class="block text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">Cargo</span>
+                            <span id="map-cargo" class="font-semibold text-slate-700 dark:text-slate-300 truncate block text-[10px]">-</span>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-1.5 border border-slate-200 dark:border-slate-600 rounded text-center">
+                            <span class="block text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">Lugar (Sede)</span>
+                            <span id="map-lugar" class="font-semibold text-slate-700 dark:text-slate-300 truncate block text-[10px]">-</span>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-1.5 border border-slate-200 dark:border-slate-600 rounded text-center bg-orange-50/30 border-orange-200">
+                            <span class="block text-[10px] text-win-orange font-bold uppercase">Nota (Puntos)</span>
+                            <span id="map-score" class="font-semibold text-win-orange truncate block text-[10px]">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILTERS & SETTINGS CARD (1 Col on lg) -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col gap-4">
+                <h2 class="font-outfit text-base font-bold text-win-navy border-b border-slate-100 dark:border-slate-700 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-win-orange"></i> 2. Filtros e Indicadores
+                </h2>
+
+                <!-- SEARCH INPUT -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Búsqueda General</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm"></i>
+                        <input type="text" id="search-query" oninput="applyFilters()" placeholder="Buscar por agente, canal o tema..." class="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/30 focus:border-win-orange transition">
+                    </div>
+                </div>
+
+                <!-- SELECT FILTERS GRID -->
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Empresa / Socio</label>
+                        <select id="filter-channel" onchange="applyFilters()" class="w-full py-1.5 px-2 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/20 transition">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tema de Capacit.</label>
+                        <select id="filter-topic" onchange="applyFilters()" class="w-full py-1.5 px-2 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/20 transition">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Área de Trabajo</label>
+                        <select id="filter-area" onchange="applyFilters()" class="w-full py-1.5 px-2 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/20 transition">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Código de Capacit.</label>
+                        <select id="filter-class-code" onchange="applyFilters()" class="w-full py-1.5 px-2 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/20 transition">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Lugar (Formulario)</label>
+                        <select id="filter-lugar" onchange="applyFilters()" class="w-full py-1.5 px-2 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/20 transition">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Ubicación (Agencia)</label>
+                        <select id="filter-roster-ubicacion" onchange="applyFilters()" class="w-full py-1.5 px-2 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/20 transition">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Fecha Inicio</label>
+                        <input type="date" id="filter-date-start" onchange="applyFilters()" class="w-full py-1.5 px-2 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/20 transition">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Fecha Fin</label>
+                        <input type="date" id="filter-date-end" onchange="applyFilters()" class="w-full py-1.5 px-2 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/20 transition">
+                    </div>
+                </div>
+
+                <!-- SLIDER: DYNAMIC PASSING SCORE -->
+                <div class="flex flex-col gap-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-xl p-3 mt-1">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-graduation-cap text-win-orange"></i> Nota Aprobatoria
+                        </span>
+                        <span id="slider-val" class="px-2.5 py-0.5 text-xs font-bold bg-win-orange text-white rounded-full">13</span>
+                    </div>
+                    <input type="range" id="passing-score" min="0" max="20" value="13" step="1" oninput="updatePassingScore(this.value)" class="w-full accent-win-orange h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-[9px] text-slate-400 dark:text-slate-500 font-bold px-1">
+                        <span>00</span>
+                        <span>05</span>
+                        <span>10</span>
+                        <span>13 (WIN)</span>
+                        <span>15</span>
+                        <span>20</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROW 2: KEY PERFORMANCE INDICATORS (KPIs) -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <!-- KPI 1: COBERTURA DE SOCIOS/AGENCIAS -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 flex flex-col justify-between min-h-[110px] relative overflow-hidden group">
+                <div class="absolute -right-3 -top-3 w-16 h-16 bg-orange-50/50 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                    <i class="fa-solid fa-building-shield text-win-orange/20 text-2xl"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Cobertura de Agencias</span>
+                <div class="my-2 flex flex-col">
+                    <span id="kpi-coverage" class="font-outfit text-2xl md:text-3xl font-extrabold text-win-navy">0.0%</span>
+                    <span id="kpi-coverage-sub" class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">0 de 0 Agencias Activas</span>
+                </div>
+                <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                    <div id="kpi-coverage-bar" class="bg-win-orange h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- KPI 2: TOTAL EVALUADOS -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 flex flex-col justify-between min-h-[110px] relative overflow-hidden group">
+                <div class="absolute -right-3 -top-3 w-16 h-16 bg-blue-50/50 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                    <i class="fa-solid fa-users text-sky-600/10 text-2xl"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total Evaluados</span>
+                <div class="my-2 flex flex-col">
+                    <span id="kpi-attendance" class="font-outfit text-2xl md:text-3xl font-extrabold text-win-navy">0</span>
+                    <span id="kpi-attendance-sub" class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">Participaciones totales</span>
+                </div>
+                <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                    <div id="kpi-attendance-bar" class="bg-sky-500 h-1.5 rounded-full transition-all duration-500" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <!-- KPI 3: PROMEDIO EXAMEN -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 flex flex-col justify-between min-h-[110px] relative overflow-hidden group">
+                <div class="absolute -right-3 -top-3 w-16 h-16 bg-yellow-50/50 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                    <i class="fa-solid fa-star text-win-yellow/20 text-2xl"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Nota Promedio</span>
+                <div class="my-2 flex flex-col">
+                    <span id="kpi-avg-score" class="font-outfit text-2xl md:text-3xl font-extrabold text-win-navy">00.0</span>
+                    <span id="kpi-avg-score-sub" class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">Escala de 0 a 20</span>
+                </div>
+                <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                    <div id="kpi-avg-bar" class="bg-win-yellow h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- KPI 4: TASA DE APROBACIÓN -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 flex flex-col justify-between min-h-[110px] relative overflow-hidden group">
+                <div class="absolute -right-3 -top-3 w-16 h-16 bg-emerald-50/50 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                    <i class="fa-solid fa-award text-emerald-600/10 text-2xl"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tasa Aprobación</span>
+                <div class="my-2 flex flex-col">
+                    <span id="kpi-pass-rate" class="font-outfit text-2xl md:text-3xl font-extrabold text-win-navy">0.0%</span>
+                    <span id="kpi-pass-sub" class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">0 Aprobados</span>
+                </div>
+                <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                    <div id="kpi-pass-bar" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- KPI 5: REFUERZOS Y DURACION -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 flex flex-col justify-between min-h-[110px] col-span-2 md:col-span-1 relative overflow-hidden group">
+                <div class="absolute -right-3 -top-3 w-16 h-16 bg-rose-50/50 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                    <i class="fa-solid fa-clock text-rose-600/10 text-2xl"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Esfuerzo & Foco</span>
+                <div class="my-1 flex flex-col gap-0.5">
+                    <div class="flex items-baseline gap-1">
+                        <span id="kpi-duration" class="font-outfit text-xl font-extrabold text-indigo-600">0.0h</span>
+                        <span class="text-[9px] font-semibold text-indigo-500">Duración Prom.</span>
+                    </div>
+                    <div class="flex items-baseline gap-1 border-t border-slate-100 dark:border-slate-700 pt-1">
+                        <span id="kpi-refuerzo" class="font-outfit text-xl font-extrabold text-rose-600">0</span>
+                        <span class="text-[9px] font-semibold text-rose-500">En Refuerzo</span>
+                    </div>
+                </div>
+                <div class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold">Resultados del Examen</div>
+            </div>
+        </div>
+
+        <!-- TABS BAR -->
+        <div class="border-b border-slate-200 dark:border-slate-600">
+            <nav class="flex space-x-6 text-sm font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-500">
+                <button onclick="switchTab('analytics')" id="tab-analytics" class="active-tab pb-3 transition duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-column"></i> Gráficos y Analytics
+                </button>
+                <button onclick="switchTab('roster-match')" id="tab-roster-match" class="pb-3 hover:text-win-orange border-bottom border-transparent transition duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-building-circle-check"></i> Reporte de Agencias (Brechas)
+                </button>
+                <button onclick="switchTab('table-view')" id="tab-table-view" class="pb-3 hover:text-win-orange border-bottom border-transparent transition duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-table-list"></i> Detalle de Participantes
+                </button>
+                <button onclick="switchTab('satisfaction')" id="tab-satisfaction" class="pb-3 hover:text-win-orange border-bottom border-transparent transition duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-face-smile text-emerald-500"></i> Satisfacción y Feedback
+                </button>
+                <button onclick="switchTab('roster-settings')" id="tab-roster-settings" class="pb-3 hover:text-win-orange border-bottom border-transparent transition duration-200 flex items-center gap-2" style="display: none !important;">
+                    <i class="fa-solid fa-list-check"></i> Configurar Agencias Activas
+                </button>
+                <button onclick="switchTab('magic-links')" id="tab-magic-links" class="pb-3 hover:text-win-orange border-bottom border-transparent transition duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-link text-win-orange"></i> Compartir Externos
+                </button>
+            </nav>
+        </div>
+
+        <!-- TAB CONTENT 1: ANALYTICS -->
+        <section id="content-analytics" class="flex flex-col gap-6">
+            
+            <!-- CHARTS GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- CHART 1: SCORE COMPARISON BY AGENCY -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-outfit text-sm font-bold text-win-navy flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-bar text-win-orange"></i> Nota Promedio por Agencia / Empresa
+                        </h3>
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">EVALUACIÓN (GRADOS 0-20)</span>
+                    </div>
+                    <div class="relative h-[280px] w-full flex items-center justify-center">
+                        <canvas id="chart-scores-bar"></canvas>
+                        <div id="chart-scores-empty" class="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-slate-800/80 hidden">
+                            <i class="fa-solid fa-chart-line text-slate-300 text-4xl mb-2"></i>
+                            <span class="text-xs text-slate-400 dark:text-slate-500 font-semibold">Cargue datos para visualizar</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHART 2: CANTIDAD DE EVALUADOS POR AGENCIA -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-outfit text-sm font-bold text-win-navy flex items-center gap-1.5">
+                            <i class="fa-solid fa-users text-win-yellow"></i> Cantidad de Evaluados por Agencia
+                        </h3>
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Total Participantes</span>
+                    </div>
+                    <div class="relative h-[280px] w-full flex items-center justify-center">
+                        <canvas id="chart-participants-count-bar"></canvas>
+                        <div id="chart-participants-count-empty" class="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-slate-800/80 hidden">
+                            <i class="fa-solid fa-users-slash text-slate-300 text-4xl mb-2"></i>
+                            <span class="text-xs text-slate-400 dark:text-slate-500 font-semibold">Cargue datos para visualizar</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHART 3: STATUS DISTRIBUTION -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-outfit text-sm font-bold text-win-navy"><i class="fa-solid fa-chart-pie text-emerald-500"></i> Distribución de Calificación General</h3>
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Estado de Evaluados</span>
+                    </div>
+                    <div class="relative h-[250px] w-full flex items-center justify-center">
+                        <div class="w-[200px] h-[200px]">
+                            <canvas id="chart-status-doughnut"></canvas>
+                        </div>
+                        <div id="chart-status-empty" class="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-slate-800/80 hidden">
+                            <i class="fa-solid fa-circle-notch text-slate-300 text-4xl mb-2 animate-spin"></i>
+                            <span class="text-xs text-slate-400 dark:text-slate-500 font-semibold">Cargue datos para visualizar</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHART 4: PERFORMANCE TREND -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-outfit text-sm font-bold text-win-navy"><i class="fa-solid fa-chart-line text-indigo-500"></i> Evolución de Nota Promedio en el Tiempo</h3>
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Línea de Tendencia</span>
+                    </div>
+                    <div class="relative h-[250px] w-full flex items-center justify-center">
+                        <canvas id="chart-trend-line"></canvas>
+                        <div id="chart-trend-empty" class="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-slate-800/80 hidden">
+                            <i class="fa-solid fa-arrow-trend-up text-slate-300 text-4xl mb-2"></i>
+                            <span class="text-xs text-slate-400 dark:text-slate-500 font-semibold">Cargue datos para visualizar</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHART 5: AVERAGE EXAM DURATION BY AGENCY (FULL WIDTH) -->
+                <div class="md:col-span-2 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-outfit text-sm font-bold text-win-navy flex items-center gap-1.5">
+                            <i class="fa-solid fa-stopwatch text-win-orange"></i> Tiempo Promedio de Examen
+                        </h3>
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Minutos por Participante</span>
+                    </div>
+                    <div class="relative h-[280px] w-full flex items-center justify-center">
+                        <canvas id="chart-durations-bar"></canvas>
+                        <div id="chart-durations-empty" class="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-slate-800/80 hidden">
+                            <i class="fa-solid fa-clock-rotate-left text-slate-300 text-4xl mb-2"></i>
+                            <span class="text-xs text-slate-400 dark:text-slate-500 font-semibold">Cargue datos para visualizar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANALYTICS INSIGHTS / ALERT BOARD -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- LOW PERFORMING CHANNELS -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col gap-3">
+                    <div class="flex justify-between items-center border-b border-slate-50 pb-2">
+                        <h3 class="font-outfit text-xs font-bold text-rose-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Alerta: Agencias con nota más baja
+                        </h3>
+                        <button onclick="copyAllLowAgencies()" class="text-[10px] bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 hover:text-rose-500 text-slate-600 dark:text-slate-300 font-bold py-1 px-2 rounded-xl flex items-center gap-1 transition-all duration-200" title="Copiar toda la lista">
+                            <i class="fa-regular fa-copy"></i> Copiar Todo
+                        </button>
+                    </div>
+                    <div id="insight-low-channels" class="flex flex-col gap-2 text-xs text-slate-600 dark:text-slate-300">
+                        <p class="text-slate-400 dark:text-slate-500 italic">Cargue archivos para iniciar análisis.</p>
+                    </div>
+                </div>
+                <!-- LOW PERFORMANCE TOPICS -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col gap-3">
+                    <div class="flex justify-between items-center border-b border-slate-50 pb-2">
+                        <h3 class="font-outfit text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-book"></i> Temas / Cursos Críticos
+                        </h3>
+                        <button onclick="copyAllLowTopics()" class="text-[10px] bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 hover:text-amber-500 text-slate-600 dark:text-slate-300 font-bold py-1 px-2 rounded-xl flex items-center gap-1 transition-all duration-200" title="Copiar toda la lista">
+                            <i class="fa-regular fa-copy"></i> Copiar Todo
+                        </button>
+                    </div>
+                    <div id="insight-low-topics" class="flex flex-col gap-2 text-xs text-slate-600 dark:text-slate-300">
+                        <p class="text-slate-400 dark:text-slate-500 italic">Cargue archivos para iniciar análisis.</p>
+                    </div>
+                </div>
+                <!-- CRITICAL AGENTS REINFORCEMENT -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col gap-3">
+                    <div class="flex justify-between items-center border-b border-slate-50 pb-2">
+                        <h3 class="font-outfit text-xs font-bold text-win-orange uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-graduation-cap"></i> Agentes con Notas Críticas (Refuerzos)
+                        </h3>
+                        <button onclick="copyAllCriticalAgents()" class="text-[10px] bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 hover:text-win-orange text-slate-600 dark:text-slate-300 font-bold py-1 px-2 rounded-xl flex items-center gap-1 transition-all duration-200" title="Copiar toda la lista">
+                            <i class="fa-regular fa-copy"></i> Copiar Todo
+                        </button>
+                    </div>
+                    <div id="insight-low-agents" class="flex flex-col gap-2 text-xs text-slate-600 dark:text-slate-300 max-h-[160px] overflow-y-auto">
+                        <p class="text-slate-400 dark:text-slate-500 italic">Cargue archivos para iniciar análisis.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT 2: COBERTURA DE AGENCIAS Y BRECHAS -->
+        <section id="content-roster-match" class="flex flex-col gap-6 hidden">
+            
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col gap-4">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-100 dark:border-slate-700 pb-3">
+                    <div>
+                        <h3 class="font-outfit text-base font-bold text-win-navy flex items-center gap-2">
+                            <i class="fa-solid fa-network-wired text-win-orange"></i> Reporte y Cobertura de Agencias Activas
+                        </h3>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Control cruzado de cobertura y resultados según agencias activas de "01 Lista agencias.xlsx"</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <!-- PARTICIPATION SELECTOR FILTER (SEGMENTED PILLS) -->
+                        <div class="inline-flex rounded-lg border border-slate-200 dark:border-slate-600 p-0.5 bg-slate-100 dark:bg-slate-700" role="group">
+                            <button type="button" onclick="setAgencyFilter('all')" id="btn-agency-filter-all" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 bg-white dark:bg-slate-800 text-win-orange shadow-sm">
+                                Todas <span id="count-agency-all" class="ml-1 px-1.5 py-0.2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full text-[10px]">0</span>
+                            </button>
+                            <button type="button" onclick="setAgencyFilter('participated')" id="btn-agency-filter-participated" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-slate-950">
+                                Participaron <span id="count-agency-participated" class="ml-1 px-1.5 py-0.2 bg-slate-200 text-slate-500 dark:text-slate-400 dark:text-slate-500 rounded-full text-[10px]">0</span>
+                            </button>
+                            <button type="button" onclick="setAgencyFilter('missing')" id="btn-agency-filter-missing" class="px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-slate-950">
+                                No Participaron <span id="count-agency-missing" class="ml-1 px-1.5 py-0.2 bg-slate-200 text-slate-500 dark:text-slate-400 dark:text-slate-500 rounded-full text-[10px]">0</span>
+                            </button>
+                        </div>
+                        <button onclick="exportAgencyReportToExcel()" class="px-3 py-1.5 text-xs font-bold text-white bg-win-orange hover:bg-win-orangeHover rounded-lg transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-excel"></i> Exportar Reporte Agencias
+                        </button>
+                    </div>
+                </div>
+
+                <!-- AGENCY MASTER ANALYSIS TABLE -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-800/50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 dark:text-slate-500 border-b border-slate-200 dark:border-slate-600 font-bold">
+                                <th class="p-3">Jefe</th>
+                                <th class="p-3">Supervisor</th>
+                                <th class="p-3">Agencia</th>
+                                <th class="p-3">Lugar (Región)</th>
+                                <th class="p-3 text-center">Meta Headcount (Editable)</th>
+                                <th class="p-3 text-center">Evaluados</th>
+                                <th class="p-3 text-center">Nota Prom.</th>
+                                <th class="p-3 text-center">Aprobación %</th>
+                                <th class="p-3 text-center">Cobertura Real %</th>
+                                <th class="p-3 text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="agencies-summary-body" class="divide-y divide-slate-100 text-slate-700 dark:text-slate-300">
+                            <tr>
+                                <td colspan="10" class="p-4 text-center text-slate-400 dark:text-slate-500 italic">Sube el archivo de agencias activas ("01 Lista agencias.xlsx") y el reporte de Forms para calcular el cumplimiento de cobertura.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT 3: TABLE VIEW (RAW DATA) -->
+        <section id="content-table-view" class="flex flex-col gap-6 hidden">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col gap-4">
+                <!-- Header with Export -->
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-100 dark:border-slate-700 pb-3">
+                    <div>
+                        <h3 class="font-outfit text-base font-bold text-win-navy flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-win-orange"></i> Listado General de Participantes Evaluados
+                        </h3>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Respuestas brutas importadas y mapeadas desde el Excel de Microsoft Forms</p>
+                    </div>
+                    <button onclick="copyParticipantTable()" class="px-3 py-1.5 text-xs font-bold text-win-orange bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-copy"></i> Copiar Tabla
+                    </button>
+                    <button onclick="exportFilteredData()" class="px-3 py-1.5 text-xs font-bold text-white bg-win-orange hover:bg-win-orangeHover rounded-lg transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-excel"></i> Exportar Resultados Filtrados
+                    </button>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-800/50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 dark:text-slate-500 border-b border-slate-200 dark:border-slate-600 font-bold">
+                                <th class="p-3 cursor-pointer select-none" onclick="sortResponses('name')">Participante <i class="fa-solid fa-sort text-slate-300"></i></th>
+                                <th class="p-3 cursor-pointer select-none" onclick="sortResponses('channel')">Empresa (Agencia) <i class="fa-solid fa-sort text-slate-300"></i></th>
+                                <th class="p-3 cursor-pointer select-none" onclick="sortResponses('area')">Área <i class="fa-solid fa-sort text-slate-300"></i></th>
+                                <th class="p-3 cursor-pointer select-none" onclick="sortResponses('cargo')">Cargo <i class="fa-solid fa-sort text-slate-300"></i></th>
+                                <th class="p-3 cursor-pointer select-none" onclick="sortResponses('lugar')">Lugar <i class="fa-solid fa-sort text-slate-300"></i></th>
+                                <th class="p-3 cursor-pointer select-none" onclick="sortResponses('topic')">Tema / Curso <i class="fa-solid fa-sort text-slate-300"></i></th>
+                                <th class="p-3 cursor-pointer select-none" onclick="sortResponses('date')">Fecha <i class="fa-solid fa-sort text-slate-300"></i></th>
+                                <th class="p-3 cursor-pointer select-none" onclick="sortResponses('score')">Nota <i class="fa-solid fa-sort text-slate-300"></i></th>
+                                <th class="p-3 text-center">Duración</th>
+                                <th class="p-3 text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="responses-table-body" class="divide-y divide-slate-100 text-slate-700 dark:text-slate-300">
+                            <tr>
+                                <td colspan="10" class="p-4 text-center text-slate-400 dark:text-slate-500 italic">No hay registros de capacitación cargados. Arrastre su Excel al área de carga superior.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PAGINATION CONTROLS -->
+                <div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-700 pt-3 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 font-semibold">
+                    <div class="flex items-center gap-2">
+                        <span>Mostrar:</span>
+                        <select id="page-size-select" onchange="changePageSize(this.value)" class="py-1 px-2 border border-slate-200 dark:border-slate-600 rounded focus:outline-none focus:ring-1 focus:ring-win-orange">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>filas</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span id="pagination-info">Mostrando 0-0 de 0 resultados</span>
+                        <div class="flex gap-1">
+                            <button id="btn-prev" onclick="prevPage()" class="p-1 px-2 border border-slate-200 dark:border-slate-600 rounded hover:bg-slate-50 dark:bg-slate-800/50 disabled:opacity-40 disabled:hover:bg-transparent" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                            <button id="btn-next" onclick="nextPage()" class="p-1 px-2 border border-slate-200 dark:border-slate-600 rounded hover:bg-slate-50 dark:bg-slate-800/50 disabled:opacity-40 disabled:hover:bg-transparent" disabled><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT 5: SATISFACTION AND FEEDBACK -->
+        <section id="content-satisfaction" class="flex flex-col gap-6 hidden">
+            
+            <!-- KPI CARDS GRID -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- CARD 1: FORMADOR SATISFACTION -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 flex flex-col justify-between min-h-[110px] relative overflow-hidden group">
+                    <div class="absolute -right-3 -top-3 w-16 h-16 bg-emerald-50/50 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                        <i class="fa-solid fa-chalkboard-user text-emerald-600/10 text-2xl"></i>
+                    </div>
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Calificación del Formador</span>
+                    <div class="my-2 flex flex-col">
+                        <span id="kpi-sat-trainer" class="font-outfit text-2xl md:text-3xl font-extrabold text-emerald-600">0.0 / 10</span>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">Nota Promedio (Escala 0-10)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                        <div id="kpi-sat-trainer-bar" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- CARD 2: APLICABILIDAD -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 flex flex-col justify-between min-h-[110px] relative overflow-hidden group">
+                    <div class="absolute -right-3 -top-3 w-16 h-16 bg-blue-50/50 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                        <i class="fa-solid fa-circle-check text-blue-600/10 text-2xl"></i>
+                    </div>
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Aplicabilidad en el Puesto</span>
+                    <div class="my-2 flex flex-col">
+                        <span id="kpi-sat-apply" class="font-outfit text-2xl md:text-3xl font-extrabold text-blue-600">0.0 / 10</span>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">Nota Promedio (Escala 0-10)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                        <div id="kpi-sat-apply-bar" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- CARD 3: EMOTIONAL TEMPERATURE -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 flex flex-col justify-between min-h-[110px] relative overflow-hidden group">
+                    <div class="absolute -right-3 -top-3 w-16 h-16 bg-amber-50/50 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                        <i class="fa-solid fa-face-smile-beam text-amber-600/10 text-2xl"></i>
+                    </div>
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Clima Emocional Predominante</span>
+                    <div class="my-2 flex flex-col">
+                        <span id="kpi-sat-mood" class="font-outfit text-xl md:text-2xl font-extrabold text-amber-500">N/A</span>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">Sentimiento más votado</span>
+                    </div>
+                    <div class="text-[10px] text-slate-500 dark:text-slate-400 dark:text-slate-500 font-semibold flex items-center gap-1">
+                        <span>Energía y Ánimo de la Sesión</span>
+                    </div>
+                </div>
+
+                <!-- CARD 4: TOTAL FEEDBACK -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 flex flex-col justify-between min-h-[110px] relative overflow-hidden group">
+                    <div class="absolute -right-3 -top-3 w-16 h-16 bg-purple-50/50 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                        <i class="fa-solid fa-comments text-purple-600/10 text-2xl"></i>
+                    </div>
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider">Comentarios Registrados</span>
+                    <div class="my-2 flex flex-col">
+                        <span id="kpi-sat-comments" class="font-outfit text-2xl md:text-3xl font-extrabold text-purple-600">0</span>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">Sugerencias recibidas</span>
+                    </div>
+                    <div class="text-[10px] text-slate-500 dark:text-slate-400 dark:text-slate-500 font-semibold">Total de opiniones</div>
+                </div>
+            </div>
+
+            <!-- DETAIL LAYOUT -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- CHARTS SIDE (1 Col) -->
+                <div class="lg:col-span-1 flex flex-col gap-6">
+                    <!-- CHART: MOOD DISTRIBUTION -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col">
+                         <h3 class="font-outfit text-sm font-bold text-win-navy mb-4"><i class="fa-solid fa-heart text-rose-500"></i> ¿Cómo se sintieron hoy?</h3>
+                         <div class="relative h-[220px] w-full flex items-center justify-center">
+                             <canvas id="chart-satisfaction-mood"></canvas>
+                         </div>
+                    </div>
+
+                    <!-- CHART: TRAINER PERFORMANCE -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col">
+                         <h3 class="font-outfit text-sm font-bold text-win-navy mb-4"><i class="fa-solid fa-star text-win-yellow"></i> Desempeño del Formador</h3>
+                         <div class="relative h-[220px] w-full flex items-center justify-center">
+                             <canvas id="chart-satisfaction-trainer"></canvas>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- FEEDBACK COMMENTS LIST (2 Cols) -->
+                <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col gap-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3">
+                        <h3 class="font-outfit text-base font-bold text-win-navy flex items-center gap-2">
+                            <i class="fa-solid fa-comment-dots text-win-orange"></i> Comentarios y Oportunidades de Mejora
+                        </h3>
+                        <span id="feedback-count-label" class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full font-bold text-[10px]">0 comentarios</span>
+                    </div>
+
+                    <div id="feedback-comments-container" class="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-1">
+                        <div class="text-center py-10 text-slate-400 dark:text-slate-500 italic">No hay comentarios para mostrar. Cargue datos de capacitación.</div>
+                    </div>
+                </div>
+
+            </div>
+            
+        </section>
+
+        <!-- TAB CONTENT 4: ROSTER SETTINGS -->
+        <section id="content-roster-settings" class="flex flex-col gap-6 hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- ROSTER EDIT / ADD AGENT -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col gap-4">
+                    <h3 class="font-outfit text-sm font-bold text-win-navy border-b border-slate-100 dark:border-slate-700 pb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus text-win-orange"></i> Agregar Agencia Manual
+                    </h3>
+                    
+                    <form id="add-agent-form" onsubmit="handleAddAgency(event)" class="flex flex-col gap-3">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase">Nombre de la Agencia</label>
+                            <input type="text" id="new-agency-name" required placeholder="Ej: SALES360" class="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/30">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase">Supervisor</label>
+                            <input type="text" id="new-agency-supervisor" required placeholder="Ej: IMALAY USCATEGUI" class="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/30">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase">Jefe</label>
+                            <input type="text" id="new-agency-jefe" required placeholder="Ej: GERARDO MONTOYA" class="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/30">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase">Lugar / Región</label>
+                            <input type="text" id="new-agency-region" required placeholder="Ej: LIMA Y CALLAO o AREQUIPA" class="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange/30">
+                        </div>
+                        <button type="submit" class="w-full py-2 bg-win-orange hover:bg-win-orangeHover text-white text-xs font-bold rounded-lg transition duration-200">
+                            <i class="fa-solid fa-plus"></i> Guardar Agencia
+                        </button>
+                    </form>
+                </div>
+
+                <!-- ROSTER DISPLAY / EDIT TABLE -->
+                <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 flex flex-col gap-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3">
+                        <div>
+                            <h3 class="font-outfit text-base font-bold text-win-navy flex items-center gap-2">
+                                <i class="fa-solid fa-building-circle-check text-win-orange"></i> Agencias Activas Cargadas
+                            </h3>
+                            <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Control maestro de agencias contra las cuales se mide cobertura.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="clearAgencies()" class="px-2.5 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition flex items-center gap-1">
+                                <i class="fa-solid fa-trash-can"></i> Limpiar Padrón
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search active roster -->
+                    <div class="relative w-full">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-xs"></i>
+                        <input type="text" id="search-roster" oninput="renderRosterConfigTable()" placeholder="Buscar agencias..." class="w-full pl-8 pr-4 py-1.5 text-xs border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-win-orange">
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[350px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-slate-800/50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 dark:text-slate-500 border-b border-slate-200 dark:border-slate-600 font-bold sticky top-0 z-10">
+                                    <th class="p-3">Agencia</th>
+                                    <th class="p-3">Supervisor</th>
+                                    <th class="p-3">Jefe</th>
+                                    <th class="p-3">Región</th>
+                                    <th class="p-3 text-right">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roster-config-table-body" class="divide-y divide-slate-100 text-slate-700 dark:text-slate-300">
+                                <tr>
+                                    <td colspan="5" class="p-4 text-center text-slate-400 dark:text-slate-500 italic">No hay agencias cargadas.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT 6: MAGIC LINKS -->
+        <section id="content-magic-links" class="flex flex-col gap-6 hidden">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="font-outfit text-lg font-bold text-win-navy flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-win-orange"></i> Generador de Enlaces Mágicos
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-1">Crea enlaces únicos para compartir los reportes con los supervisores de cada agencia.</p>
+                    </div>
+                    <button onclick="generateMagicLinks()" class="px-4 py-2 bg-win-orange hover:bg-win-orangeHover text-white text-sm font-bold rounded-lg transition duration-200 flex items-center gap-2">
+                        <i class="fa-solid fa-bolt"></i> Generar Enlaces
+                    </button>
+                </div>
+                
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-6 text-sm text-slate-700 flex flex-col gap-2">
+                    <p><strong>Paso 1:</strong> Asegúrate de haber subido el archivo <code>reporte-externo.html</code> a internet (ej. Netlify, GitHub Pages, o tu servidor web) y de configurar tu Google Sheets como "Publicado en la Web".</p>
+                    <div class="flex items-center gap-2 mt-2">
+                        <label class="font-bold whitespace-nowrap">Paso 2: Pega aquí tu URL pública:</label>
+                        <input type="text" id="public-base-url" placeholder="https://misitio.com/reporte-externo.html" class="w-full sm:w-96 px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    </div>
+                    <p><strong>Paso 3:</strong> Haz clic en "Generar Enlaces". El sistema creará un enlace codificado por cada Agencia Activa.</p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 font-bold text-slate-600">
+                                <th class="p-3">Agencia</th>
+                                <th class="p-3">Supervisor</th>
+                                <th class="p-3">Enlace Mágico</th>
+                                <th class="p-3 text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="magic-links-table-body" class="divide-y divide-slate-100 text-slate-700">
+                            <tr>
+                                <td colspan="4" class="p-6 text-center text-slate-400 italic">Haz clic en "Generar Enlaces" para ver la lista.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <script>
+                function generateMagicLinks() {
+                    const tbody = document.getElementById('magic-links-table-body');
+                    if (typeof activeAgencies === 'undefined' || activeAgencies.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-red-500 font-bold">No hay agencias activas configuradas. Ve a la pestaña "Configurar Agencias" y carga el excel.</td></tr>';
+                        return;
+                    }
+
+                    // FILTER LOGIC: Match the magic links with the current dashboard filters
+                    let agenciesToGenerate = activeAgencies;
+                    
+                    if (typeof responses !== 'undefined' && responses.length > 0) {
+                        // Get all unique agency names currently visible in the filtered dashboard data
+                        const visibleChannels = [...new Set(filteredResponses.map(r => r.channel))].map(c => c ? c.toUpperCase() : '');
+                        agenciesToGenerate = activeAgencies.filter(a => visibleChannels.includes(a.name.toUpperCase()));
+                    } else {
+                        // Fallback if no responses loaded but there's a channel filter selected manually
+                        const chanFilter = document.getElementById('filter-channel') ? document.getElementById('filter-channel').value : '';
+                        if (chanFilter) {
+                            agenciesToGenerate = activeAgencies.filter(a => a.name.toUpperCase() === chanFilter.toUpperCase());
+                        }
+                    }
+
+                    // Remove duplicate agencies by name (since activeAgencies can have multiple entries for the same agency in different regions)
+                    const uniqueAgencies = [];
+                    const seenNames = new Set();
+                    agenciesToGenerate.forEach(a => {
+                        const upperName = a.name.toUpperCase();
+                        if (!seenNames.has(upperName)) {
+                            seenNames.add(upperName);
+                            uniqueAgencies.push(a);
+                        }
+                    });
+                    agenciesToGenerate = uniqueAgencies;
+
+                    if (agenciesToGenerate.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-500 italic">Los filtros e indicadores actuales no coinciden con ninguna agencia. Intenta restablecer los filtros para ver la lista.</td></tr>';
+                        return;
+                    }
+                    
+                    tbody.innerHTML = '';
+                    let userBaseUrl = document.getElementById('public-base-url').value.trim();
+                    
+                    if (!userBaseUrl) {
+                        // Fallback to local logic if empty, but alert user
+                        let localUrl = window.location.href;
+                        if (localUrl.includes('index.html')) {
+                            localUrl = localUrl.replace('index.html', 'reporte-externo.html');
+                        } else {
+                            localUrl = localUrl.endsWith('/') ? localUrl + 'reporte-externo.html' : localUrl + '/reporte-externo.html';
+                        }
+                        userBaseUrl = localUrl.split('?')[0].split('#')[0];
+                        alert("Aviso: No has ingresado tu URL pública. Se generarán enlaces locales (que solo funcionarán en tu computadora).");
+                    }
+
+                    // clean query params if any from user input
+                    const cleanBaseUrl = userBaseUrl.split('?')[0].split('#')[0];
+
+                    // Grab current active filters
+                    const topicFilter = document.getElementById('filter-topic') ? document.getElementById('filter-topic').value : '';
+                    const areaFilter = document.getElementById('filter-area') ? document.getElementById('filter-area').value : '';
+                    const classCodeFilter = document.getElementById('filter-class-code') ? document.getElementById('filter-class-code').value : '';
+                    const lugarFilter = document.getElementById('filter-lugar') ? document.getElementById('filter-lugar').value : '';
+
+                    agenciesToGenerate.forEach(agency => {
+                        // Create base64 token containing all filters
+                        const payload = {
+                            agency: agency.name,
+                            topic: topicFilter,
+                            area: areaFilter,
+                            classCode: classCodeFilter,
+                            lugar: lugarFilter
+                        };
+                        const token = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+                        
+                        // Check if user URL already has a ? (it shouldn't if it's an HTML file, but just in case)
+                        const separator = cleanBaseUrl.includes('?') ? '&' : '?';
+                        const magicLink = `${cleanBaseUrl}${separator}token=${token}`;
+                        
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-slate-50 transition';
+                        tr.innerHTML = `
+                            <td class="p-3 font-semibold">${agency.name}</td>
+                            <td class="p-3 text-slate-500">${agency.supervisor || '-'}</td>
+                            <td class="p-3">
+                                <input type="text" readonly value="${magicLink}" class="w-full text-xs p-1.5 border border-slate-200 rounded bg-slate-50 text-slate-500 outline-none">
+                            </td>
+                            <td class="p-3 text-center">
+                                <button onclick="copyToClipboard('${magicLink}', this)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded flex items-center gap-1 mx-auto transition">
+                                    <i class="fa-regular fa-copy"></i> Copiar
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                function copyToClipboard(text, btn) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        const originalHtml = btn.innerHTML;
+                        btn.innerHTML = '<i class="fa-solid fa-check text-green-400"></i> Copiado';
+                        btn.classList.remove('bg-slate-800', 'hover:bg-slate-700');
+                        btn.classList.add('bg-green-600', 'hover:bg-green-500');
+                        setTimeout(() => {
+                            btn.innerHTML = originalHtml;
+                            btn.classList.remove('bg-green-600', 'hover:bg-green-500');
+                            btn.classList.add('bg-slate-800', 'hover:bg-slate-700');
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy', err);
+                        alert('No se pudo copiar. Intente manualmente.');
+                    });
+                }
+            </script>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-slate-500 dark:text-slate-400 dark:text-slate-500 py-6 mt-12 text-center text-xs mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="font-outfit font-extrabold text-win-orange text-sm tracking-wide">WIN Internet</span>
+                <span class="text-slate-700 dark:text-slate-300">|</span>
+                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Formación y Desarrollo</span>
+            </div>
+            <p>&copy; 2026 WIN Internet S.A.C. Todos los derechos reservados. Diseñado para WIN Business Partners.</p>
+        </div>
+    </footer>
+
+    <!-- MAIN DASHBOARD LOGIC (VANILLA JS) -->
+    <script>
+        // Global state variables
+        let activeAgencies = []; // Active agencies roster from "01 Lista agencias"
+        let responses = [];      // Training evaluations parsed
+        let filteredResponses = [];
+        let sortedResponses = [];
+        let currentTab = 'analytics';
+        let passingScore = 13;
+        let agencyFilterVal = 'all';
+        
+        // Fix Chart JS light mode text colors and border lines globally
+        Chart.defaults.color = '#334155';
+        Chart.defaults.borderColor = '#e2e8f0';
+        if (Chart.defaults.scale) {
+            if(Chart.defaults.scale.border) Chart.defaults.scale.border.display = false;
+            if(Chart.defaults.scale.grid) {
+                Chart.defaults.scale.grid.color = '#e2e8f0';
+                Chart.defaults.scale.grid.drawBorder = false;
+            }
+        }
+
+        // Editable headcount targets (key: agencyName, value: targetHeadcount)
+        let agencyTargets = {};
+
+        // Sorting state
+        let sortKey = 'name';
+        let sortAsc = true;
+        
+        // Pagination state
+        let currentPage = 1;
+        let pageSize = 10;
+
+        // Chart instances
+        let charts = {
+            scoreBar: null,
+            statusDoughnut: null,
+            trendLine: null,
+            satMood: null,
+            satTrainer: null,
+            participantsBar: null,
+            durationsBar: null
+        };
+
+        function regionsMatch(regionA, regionB) {
+            const normA = normalizeString(regionA);
+            const normB = normalizeString(regionB);
+            if (normA === normB) return true;
+            if ((normA.includes("lima") && normB.includes("lima")) || (normA.includes("callao") && normB.includes("callao"))) {
+                return true;
+            }
+            return false;
+        }
+
+        function findMatchingAgency(channel, lugar) {
+            if (!channel) return null;
+            const chanUpper = channel.toUpperCase();
+            
+            const matchingNames = activeAgencies.filter(a => a.name.toUpperCase() === chanUpper);
+            
+            if (matchingNames.length === 0) {
+                // If it is not in the roster at all, dynamically create and add it!
+                const isLima = normalizeString(lugar).includes('lima') || normalizeString(lugar).includes('callao');
+                const newAgency = {
+                    jefe: 'Por asignar',
+                    supervisor: 'Por asignar',
+                    name: channel,
+                    region: (lugar || 'LIMA Y CALLAO').toUpperCase(),
+                    ubicacion: isLima ? 'LIMA' : 'PROVINCIA'
+                };
+                activeAgencies.push(newAgency);
+                localStorage.setItem('win_active_agencies', JSON.stringify(activeAgencies));
+                
+                const statusEl = document.getElementById('status-roster');
+                if (statusEl) {
+                    statusEl.innerText = `Agencias: ${activeAgencies.length} activas`;
+                }
+                return newAgency;
+            }
+            
+            // If we have matching agency names, check if the region matches
+            const regionMatch = matchingNames.find(a => regionsMatch(a.region, lugar));
+            if (regionMatch) return regionMatch;
+            
+            // If no region match, but the place (lugar) is different from the existing matching agencies' regions,
+            // we should create a new branch of this agency in the new region!
+            const existsThisRegion = matchingNames.some(a => regionsMatch(a.region, lugar));
+            if (!existsThisRegion && lugar) {
+                const isLima = normalizeString(lugar).includes('lima') || normalizeString(lugar).includes('callao');
+                const newAgency = {
+                    jefe: matchingNames[0].jefe || 'Por asignar',
+                    supervisor: matchingNames[0].supervisor || 'Por asignar',
+                    name: matchingNames[0].name, // keep original casing
+                    region: lugar.toUpperCase(),
+                    ubicacion: isLima ? 'LIMA' : 'PROVINCIA'
+                };
+                activeAgencies.push(newAgency);
+                localStorage.setItem('win_active_agencies', JSON.stringify(activeAgencies));
+                
+                const statusEl = document.getElementById('status-roster');
+                if (statusEl) {
+                    statusEl.innerText = `Agencias: ${activeAgencies.length} activas`;
+                }
+                return newAgency;
+            }
+            
+            return matchingNames[0];
+        }
+
+        // File column mappings (0-based indices for Excel rows)
+        let colMapping = {
+            id: 0,
+            startTime: 1,   // Col B: Hora de inicio
+            endTime: 2,     // Col C: Hora de finalización
+            date: 2,        // Col C: Hora de finalización
+            email: 3,       // Col D: Correo
+            defaultName: 4, // Col E: Nombre Forms default
+            score: 5,       // Col F: Total de puntos
+            apellidos: 11,  // Col L: Apellidos
+            nombres: 14,    // Col O: Nombres
+            empresa: 17,    // Col R: Selecciona la empresa
+            area: 20,       // Col U: Seleccione la área de trabajo
+            cargo: 23,      // Col X: Seleccione el cargo
+            lugar: 26,      // Col AA: Seleccione su lugar de trabajo
+            topic: 32,      // Col AG: Nombre de la capacitación
+            classCode: 35,  // Col AJ: Código de capacitación
+            duration: 53    // Col BB: Duración de la capacitación (Horas)
+        };
+
+        // Initial setup
+        function setAgencyFilter(val) {
+            agencyFilterVal = val;
+            
+            // Update button styles
+            const buttons = {
+                all: document.getElementById('btn-agency-filter-all'),
+                participated: document.getElementById('btn-agency-filter-participated'),
+                missing: document.getElementById('btn-agency-filter-missing')
+            };
+            
+            Object.keys(buttons).forEach(key => {
+                const btn = buttons[key];
+                if (btn) {
+                    if (key === val) {
+                        btn.className = "px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 bg-white dark:bg-slate-800 text-win-orange shadow-sm";
+                    } else {
+                        btn.className = "px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-slate-950";
+                    }
+                }
+            });
+            
+            updateDashboard();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Load active agencies list from localStorage
+            const savedAgencies = localStorage.getItem('win_active_agencies');
+            if (savedAgencies) {
+                try {
+                    activeAgencies = JSON.parse(savedAgencies);
+                    if (activeAgencies.length > 0) {
+                        document.getElementById('status-roster').innerText = `Agencias: ${activeAgencies.length} activas`;
+                        document.getElementById('status-roster').classList.remove('hidden');
+                    }
+                } catch (e) {
+                    console.error("Error loading agencies from localStorage:", e);
+                }
+            }
+
+            // Load agency headcount targets
+            const savedTargets = localStorage.getItem('win_agency_targets');
+            if (savedTargets) {
+                try {
+                    agencyTargets = JSON.parse(savedTargets);
+                } catch (e) {
+                    console.error("Error loading agency targets:", e);
+                }
+            }
+
+            // Sync slider UI
+            document.getElementById('passing-score').value = passingScore;
+            document.getElementById('slider-val').innerText = passingScore;
+
+            // Render tables & setup charts
+            updateDashboard();
+        });
+
+        // Custom Chart.js Plugin to show dynamic values on top of bars
+        const barLabelsPlugin = {
+            id: 'barLabels',
+            afterDatasetsDraw(chart) {
+                const { ctx } = chart;
+                ctx.save();
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                
+                chart.data.datasets.forEach((dataset, i) => {
+                    const meta = chart.getDatasetMeta(i);
+                    meta.data.forEach((bar, index) => {
+                        const scoreVal = dataset.data[index];
+                        if (scoreVal === null || isNaN(scoreVal)) return;
+
+                        const label = chart.data.labels[index];
+                        
+                        // Access the calculated count of participants for this agency
+                        const activeList = filteredResponses.length > 0 ? filteredResponses : responses;
+                        const count = activeList.filter(r => {
+                            const agencyMatch = findMatchingAgency(r.channel, r.lugar);
+                            const key = agencyMatch ? `${agencyMatch.name} (${agencyMatch.region})` : r.channel;
+                            return key.toUpperCase() === label.toUpperCase();
+                        }).length;
+
+                        // 1. Draw Score (to the right of the bar)
+                        ctx.font = 'bold 10px Inter, sans-serif';
+                        ctx.fillStyle = '#FF5A0A'; // WIN Orange
+                        ctx.fillText(scoreVal.toFixed(1), bar.x + 6, bar.y);
+
+                        // 2. Draw Participant Count (further to the right)
+                        ctx.font = '500 9px Inter, sans-serif';
+                        ctx.fillStyle = '#64748b'; // Slate gray
+                        ctx.fillText(`(n=${count})`, bar.x + 32, bar.y);
+                    });
+                });
+                ctx.restore();
+            }
+        };
+
+        // Register custom plugin locally in chart configurations instead of globally to avoid leakage
+        
+        // ----------------------------------------------------
+        // EXCEL PARSING & INGESTION (SheetJS)
+        // ----------------------------------------------------
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.currentTarget.classList.add('border-win-orange', 'bg-orange-50/10');
+        }
+
+        function handleDragLeave(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove('border-win-orange', 'border-win-yellow', 'bg-orange-50/10', 'bg-yellow-50/10');
+            }
+        }
+
+        function handleDrop(e, type) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const dropzoneId = type === 'training' ? 'dropzone-training' : 'dropzone-roster';
+            handleDragLeave(dropzoneId);
+
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                processFile(files[0], type);
+            }
+        }
+
+        function handleFileSelect(e, type) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                processFile(files[0], type);
+            }
+            e.target.value = ''; // Reset to allow re-upload of same file
+        }
+
+        function syncGoogleSheets(btn) {
+            const urlInput = document.getElementById('google-sheets-url');
+            let url = urlInput ? urlInput.value.trim() : '';
+            
+            // Auto format URL if they paste the /edit URL
+            if (url.includes('/edit')) {
+                url = url.replace(/\/edit.*$/, '/export?format=csv&gid=0');
+                urlInput.value = url; // Update input visibly
+            }
+
+            if (!url) {
+                alert("Por favor ingresa la URL de tu Google Sheets (Formato CSV).");
+                return;
+            }
+
+            const originalBtnHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando...';
+            btn.disabled = true;
+
+            Papa.parse(url, {
+                download: true,
+                header: false, // returns array of arrays, just like sheet_to_json({header: 1})
+                skipEmptyLines: true,
+                complete: function(results) {
+                    btn.innerHTML = originalBtnHtml;
+                    btn.disabled = false;
+                    
+                    if (results.errors && results.errors.length > 0 && results.data.length === 0) {
+                        alert("Error al descargar. Verifica que el Google Sheets esté compartido como 'Cualquier usuario que tenga el vínculo puede leer'.");
+                        console.error(results.errors);
+                        return;
+                    }
+
+                    // Show success
+                    const statusTraining = document.getElementById('status-training');
+                    if (statusTraining) {
+                        statusTraining.classList.remove('hidden');
+                        setTimeout(() => statusTraining.classList.add('hidden'), 3000);
+                    }
+
+                    // Process Data
+                    parseTrainingData(results.data, "Google Sheets");
+                },
+                error: function(err) {
+                    btn.innerHTML = originalBtnHtml;
+                    btn.disabled = false;
+                    alert("Error de red. Verifica la conexión o la URL.");
+                    console.error(err);
+                }
+            });
+        }
+
+        function processFile(file, type) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const data = e.target.result;
+                let workbook;
+                try {
+                    workbook = XLSX.read(data, { type: 'binary', cellDates: true });
+                } catch (err) {
+                    console.error("Error reading Excel file:", err);
+                    alert("Error al leer el archivo Excel. Asegúrate de subir un archivo .xlsx o .xls válido.");
+                    return;
+                }
+
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                const rawArray = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+
+                if (rawArray.length === 0) {
+                    alert("El archivo Excel está vacío.");
+                    return;
+                }
+
+                if (type === 'training') {
+                    parseTrainingData(rawArray, file.name);
+                } else {
+                    parseAgenciesExcel(rawArray, file.name);
+                }
+            };
+            
+            reader.readAsBinaryString(file);
+        }
+
+        // Parse training evaluations sheet
+        function parseTrainingData(dataMatrix, filename) {
+            if (dataMatrix.length < 2) return;
+            
+            const headers = dataMatrix[0].map(h => String(h || '').trim());
+
+            function getIndex(keywords, defaultIdx) {
+                const foundIdx = headers.findIndex(h => {
+                    const hNormalized = normalizeString(h);
+                    if (!hNormalized) return false;
+                    return keywords.some(k => {
+                        const kNormalized = normalizeString(k);
+                        return hNormalized.includes(kNormalized);
+                    });
+                });
+                return foundIdx !== -1 ? foundIdx : defaultIdx;
+            }
+
+            const map = {
+                id: getIndex(['id', 'respuesta'], 0),
+                startTime: getIndex(['hora de inicio', 'fecha de inicio', 'inicio'], 1),
+                endTime: getIndex(['hora de finalización', 'hora de finalizacion', 'fecha'], 2),
+                date: getIndex(['hora de finalización', 'hora de finalizacion', 'fecha'], 2),
+                email: getIndex(['correo electrónico', 'correo electronico', 'email'], 3),
+                defaultName: getIndex(['nombre de usuario', 'nombre forms'], 4),
+                score: getIndex(['total de puntos', 'puntos', 'calificación', 'nota', 'score'], 5),
+                apellidos: getIndex(['apellidos', 'last name'], 11),
+                nombres: getIndex(['nombres', 'first name', 'nombre completo'], 14),
+                empresa: getIndex(['selecciona a la empresa', 'empresa', 'agencia', 'socio'], 17),
+                area: getIndex(['área de trabajo', 'area de trabajo', 'área'], 20),
+                cargo: getIndex(['cargo', 'puesto', 'rol'], 23),
+                lugar: getIndex(['lugar de trabajo', 'lugar', 'sede', 'región', 'provincia'], 26),
+                topic: getIndex(['nombre de la capacitación', 'nombre de la capacitacion', 'tema', 'curso'], 32),
+                classCode: getIndex(['código de tu formación', 'codigo de tu formacion', 'código de tu formación', 'código', 'codigo'], 35),
+                duration: getIndex(['duración de la capacitación', 'duracion de la capacitacion', 'horas'], 53),
+                aplicar: getIndex(['aplicar la información', 'aplicar la informacion', 'aplicar'], 41),
+                conocimiento: getIndex(['conocimiento del formador', 'conocimiento'], 44),
+                senti: getIndex(['como me sentí', 'como me senti', 'sentí', 'senti'], 47),
+                cambiaria: getIndex(['qué cambiaría', 'que cambiaria', 'cambiaría', 'cambiaria'], 50)
+            };
+
+            const parsedResponses = [];
+
+            for (let i = 1; i < dataMatrix.length; i++) {
+                const row = dataMatrix[i];
+                if (!row || row.length === 0) continue;
+
+                let name = '';
+                const firstName = String(row[map.nombres] || '').trim();
+                const lastName = String(row[map.apellidos] || '').trim();
+                if (firstName || lastName) {
+                    name = `${firstName} ${lastName}`.trim();
+                } else {
+                    name = String(row[map.defaultName] || 'Anónimo').trim();
+                }
+
+                if (name === 'Anónimo' && !row[map.empresa]) continue;
+
+                let score = 0;
+                let rawScore = row[map.score];
+                if (typeof rawScore === 'string') {
+                    if (rawScore.includes('/')) {
+                        const parts = rawScore.split('/');
+                        const num = parseFloat(parts[0]);
+                        const den = parseFloat(parts[1]);
+                        score = den > 0 ? (num / den) * 20 : num;
+                    } else {
+                        score = parseFloat(rawScore) || 0;
+                    }
+                } else if (typeof rawScore === 'number') {
+                    score = rawScore;
+                }
+                if (score > 20) {
+                    score = (score / 100) * 20;
+                }
+                score = Math.round(score * 100) / 100;
+
+                let dateVal = row[map.date];
+                let formattedDate = 'Sin fecha';
+                if (dateVal) {
+                    if (dateVal instanceof Date) {
+                        formattedDate = dateVal.toLocaleDateString('es-PE');
+                    } else {
+                        formattedDate = String(dateVal).split(' ')[0];
+                    }
+                }
+
+                let duration = 0;
+                let rawDuration = row[map.duration];
+                if (rawDuration) {
+                    duration = parseFloat(rawDuration) || 0;
+                }
+
+                let startTimeVal = row[map.startTime];
+                let endTimeVal = row[map.endTime];
+                let examDurationMin = 0;
+                if (startTimeVal && endTimeVal) {
+                    const startDt = parseExcelDateTime(startTimeVal);
+                    const endDt = parseExcelDateTime(endTimeVal);
+                    if (startDt && endDt) {
+                        const diffMs = endDt - startDt;
+                        if (diffMs > 0) {
+                            examDurationMin = Math.round((diffMs / 60000) * 10) / 10;
+                        }
+                    }
+                }
+
+                parsedResponses.push({
+                    id: parsedResponses.length + 1,
+                    name: name,
+                    channel: String(row[map.empresa] || 'Sin Agencia').trim(),
+                    area: String(row[map.area] || 'Sin Área').trim(),
+                    cargo: String(row[map.cargo] || 'Sin Cargo').trim(),
+                    lugar: String(row[map.lugar] || 'Sin Sede').trim(),
+                    topic: String(row[map.topic] || 'Capacitación General').trim(),
+                    classCode: String(row[map.classCode] || 'General').trim(),
+                    date: formattedDate,
+                    score: score,
+                    duration: duration,
+                    examDurationMin: examDurationMin,
+                    attendance: 'Sí',
+                    feedback_aplicar: String(row[map.aplicar] || '').trim(),
+                    feedback_conocimiento: String(row[map.conocimiento] || '').trim(),
+                    feedback_senti: String(row[map.senti] || '').trim(),
+                    feedback_cambiaria: String(row[map.cambiaria] || '').trim()
+                });
+            }
+
+            const grouped = {};
+            parsedResponses.forEach(r => {
+                const key = (r.name || '').toLowerCase() + '|' + (r.classCode || '').toLowerCase() + '|' + (r.topic || '').toLowerCase() + '|' + (r.date || '');
+                if (!grouped[key]) {
+                    grouped[key] = { ...r, scoreSum: r.score, count: 1 };
+                } else {
+                    grouped[key].scoreSum += r.score;
+                    grouped[key].count += 1;
+                    if (r.examDurationMin > grouped[key].examDurationMin) {
+                        grouped[key].examDurationMin = r.examDurationMin;
+                    }
+                }
+            });
+
+            const duplicateCount = parsedResponses.length - Object.values(grouped).length;
+            const dupWarning = document.getElementById('duplicate-warning');
+            if (dupWarning) {
+                if (duplicateCount > 0) {
+                    dupWarning.textContent = `${duplicateCount} duplicados promediados`;
+                    dupWarning.classList.remove('hidden');
+                } else {
+                    dupWarning.classList.add('hidden');
+                }
+            }
+
+            responses = Object.values(grouped).map(g => {
+                const avgScore = g.count > 0 ? (g.scoreSum / g.count) : 0;
+                const roundedScore = Math.round(avgScore * 100) / 100;
+                const newR = { ...g, score: roundedScore };
+                delete newR.scoreSum;
+                delete newR.count;
+                return newR;
+            });
+
+            const statusEl = document.getElementById('status-training');
+            statusEl.innerText = `Cargado: ${filename} (${responses.length} filas)`;
+            statusEl.classList.remove('hidden');
+
+            document.getElementById('map-name').innerText = `Col ${map.nombres + 1}+${map.apellidos + 1}`;
+            document.getElementById('map-channel').innerText = `Col ${map.empresa + 1}`;
+            document.getElementById('map-area').innerText = `Col ${map.area + 1}`;
+            document.getElementById('map-cargo').innerText = `Col ${map.cargo + 1}`;
+            document.getElementById('map-lugar').innerText = `Col ${map.lugar + 1}`;
+            document.getElementById('map-score').innerText = `Col ${map.score + 1}`;
+            document.getElementById('mapping-summary').classList.remove('hidden');
+
+            populateFilterOptions();
+            applyFilters();
+        }
+
+        // Parse Active Agencies list Excel (01 Lista agencias)
+        function parseAgenciesExcel(dataMatrix, filename) {
+            if (dataMatrix.length < 2) return;
+
+            const headers = dataMatrix[0].map(h => String(h || '').trim());
+
+            function getRosterIndex(keywords, defaultIdx) {
+                const foundIdx = headers.findIndex(h => {
+                    const hNormalized = normalizeString(h);
+                    if (!hNormalized) return false;
+                    return keywords.some(k => {
+                        const kNormalized = normalizeString(k);
+                        return hNormalized.includes(kNormalized);
+                    });
+                });
+                return foundIdx !== -1 ? foundIdx : defaultIdx;
+            }
+
+            const jefeIdx = getRosterIndex(['jefe'], 1);
+            const supervisorIdx = getRosterIndex(['supervisor'], 2);
+            const agenciaIdx = getRosterIndex(['agencia', 'socio', 'empresa'], 3);
+            const provinciaIdx = getRosterIndex(['provincia', 'region', 'lugar', 'sede'], 4);
+            const ubicacionIdx = getRosterIndex(['ubicacion', 'ubicación'], 5);
+
+            const parsedAgencies = [];
+            for (let i = 1; i < dataMatrix.length; i++) {
+                const row = dataMatrix[i];
+                if (!row || row.length === 0) continue;
+
+                const agencyName = String(row[agenciaIdx] || '').trim();
+                if (agencyName) {
+                    parsedAgencies.push({
+                        jefe: String(row[jefeIdx] || 'Sin Jefe').trim(),
+                        supervisor: String(row[supervisorIdx] || 'Sin Supervisor').trim(),
+                        name: agencyName,
+                        region: String(row[provinciaIdx] || 'LIMA Y CALLAO').trim(),
+                        ubicacion: String(row[ubicacionIdx] || 'LIMA').trim()
+                    });
+                }
+            }
+
+            activeAgencies = parsedAgencies;
+            localStorage.setItem('win_active_agencies', JSON.stringify(activeAgencies));
+
+            const statusEl = document.getElementById('status-roster');
+            statusEl.innerText = `Agencias: ${activeAgencies.length} activas`;
+            statusEl.classList.remove('hidden');
+
+            populateFilterOptions();
+            applyFilters();
+        }
+
+        // ----------------------------------------------------
+        // DEMO DATA GENERATOR
+        // ----------------------------------------------------
+        
+        function loadDemoData() {
+            localStorage.clear();
+
+            activeAgencies = [
+                { name: "SALES360", supervisor: "IMALAY USCATEGUI", jefe: "GERARDO MONTOYA", region: "LIMA Y CALLAO", ubicacion: "LIMA" },
+                { name: "SALES 365", supervisor: "IMALAY USCATEGUI", jefe: "GERARDO MONTOYA", region: "LIMA Y CALLAO", ubicacion: "LIMA" },
+                { name: "EJAS", supervisor: "IMALAY USCATEGUI", jefe: "GERARDO MONTOYA", region: "LIMA Y CALLAO", ubicacion: "LIMA" },
+                { name: "ALLMARK", supervisor: "CARLOS MEDINA", jefe: "GERARDO MONTOYA", region: "LIMA Y CALLAO", ubicacion: "LIMA" },
+                { name: "ALFACOM", supervisor: "GUSTAVO PALACIOS", jefe: "MARIA ROJAS", region: "PROVINCIA", ubicacion: "PROVINCIA" },
+                { name: "ALIV", supervisor: "GUSTAVO PALACIOS", jefe: "MARIA ROJAS", region: "PROVINCIA", ubicacion: "PROVINCIA" },
+                { name: "BELFECOM", supervisor: "LUIS TORRES", jefe: "MARIA ROJAS", region: "PROVINCIA", ubicacion: "PROVINCIA" },
+                { name: "DATANTENNA", supervisor: "LUIS TORRES", jefe: "MARIA ROJAS", region: "PROVINCIA", ubicacion: "PROVINCIA" }
+            ];
+
+            agencyTargets = {
+                "SALES360": 15,
+                "SALES 365": 12,
+                "EJAS": 8,
+                "ALLMARK": 10,
+                "ALFACOM": 6,
+                "ALIV": 8,
+                "BELFECOM": 5,
+                "DATANTENNA": 6
+            };
+
+            localStorage.setItem('win_active_agencies', JSON.stringify(activeAgencies));
+            localStorage.setItem('win_agency_targets', JSON.stringify(agencyTargets));
+            
+            document.getElementById('status-roster').innerText = `Agencias Demo: ${activeAgencies.length} activas`;
+            document.getElementById('status-roster').classList.remove('hidden');
+
+            responses = [
+                 // C.I. Fibra Óptica
+                 { id: 1, name: "Carlos Perez", channel: "SALES360", area: "VENTAS", cargo: "ASESOR", lugar: "LIMA Y CALLAO", topic: "C.I. Fibra Óptica", date: "01/06/2026", score: 18, duration: 4, classCode: "WIN-FO-01", examDurationMin: 12.5, feedback_aplicar: "Totalmente de acuerdo", feedback_conocimiento: "Excelente", feedback_senti: "Motivado", feedback_cambiaria: "Mayor interacción con casos reales" },
+                 { id: 2, name: "Maria Rojas", channel: "SALES360", area: "VENTAS", cargo: "ASESOR", lugar: "LIMA Y CALLAO", topic: "C.I. Fibra Óptica", date: "01/06/2026", score: 19, duration: 4, classCode: "WIN-FO-01", examDurationMin: 18.2, feedback_aplicar: "Totalmente de acuerdo", feedback_conocimiento: "Excelente", feedback_senti: "Feliz", feedback_cambiaria: "Nada, todo muy claro" },
+                 { id: 3, name: "Sofia Castro", channel: "SALES360", area: "VENTAS", cargo: "ASESOR", lugar: "LIMA Y CALLAO", topic: "C.I. Fibra Óptica", date: "01/06/2026", score: 12, duration: 4, classCode: "WIN-FO-01", examDurationMin: 22.0, feedback_aplicar: "De acuerdo", feedback_conocimiento: "Bueno", feedback_senti: "Neutral", feedback_cambiaria: "Un poco más de tiempo para el examen" },
+                 { id: 4, name: "Daniel Silva", channel: "SALES360", area: "VENTAS", cargo: "ASESOR", lugar: "LIMA Y CALLAO", topic: "C.I. Fibra Óptica", date: "01/06/2026", score: 15, duration: 4, classCode: "WIN-FO-01", examDurationMin: 14.1, feedback_aplicar: "Totalmente de acuerdo", feedback_conocimiento: "Excelente", feedback_senti: "Motivado", feedback_cambiaria: "Excelente dinámica" },
+
+                 { id: 5, name: "Luis Huaman", channel: "SALES 365", area: "VENTAS", cargo: "ASESOR", lugar: "LIMA Y CALLAO", topic: "C.I. Fibra Óptica", date: "01/06/2026", score: 16, duration: 4, classCode: "WIN-FO-02", examDurationMin: 15.5, feedback_aplicar: "De acuerdo", feedback_conocimiento: "Bueno", feedback_senti: "Motivado", feedback_cambiaria: "Ninguno" },
+                 { id: 6, name: "Andrea Ortiz", channel: "SALES 365", area: "VENTAS", cargo: "ASESOR", lugar: "LIMA Y CALLAO", topic: "C.I. Fibra Óptica", date: "01/06/2026", score: 14, duration: 4, classCode: "WIN-FO-02", examDurationMin: 0.8, feedback_aplicar: "Totalmente de acuerdo", feedback_conocimiento: "Excelente", feedback_senti: "Feliz", feedback_cambiaria: "Explicar más sobre zonas de fraude" },
+                 { id: 7, name: "Jorge Chavez", channel: "SALES 365", area: "VENTAS", cargo: "ASESOR", lugar: "LIMA Y CALLAO", topic: "C.I. Fibra Óptica", date: "01/06/2026", score: 11, duration: 4, classCode: "WIN-FO-02", examDurationMin: 1.2, feedback_aplicar: "Neutral", feedback_conocimiento: "Regular", feedback_senti: "Cansado", feedback_cambiaria: "Hacerlo más dinámico" },
+
+                 { id: 8, name: "Christian Guerrero", channel: "EJAS", area: "VENTAS", cargo: "ASESOR", lugar: "LIMA Y CALLAO", topic: "C.I. Fibra Óptica", date: "01/06/2026", score: 20, duration: 4, classCode: "WIN-FO-03", examDurationMin: 0.5, feedback_aplicar: "Totalmente de acuerdo", feedback_conocimiento: "Excelente", feedback_senti: "Motivado", feedback_cambiaria: "Todo estuvo excelente, me sirvió de mucho" },
+                 
+                 { id: 9, name: "Roberto Espinoza", channel: "ALLMARK", area: "VENTAS", cargo: "SUPERVISOR", lugar: "LIMA Y CALLAO", topic: "C.I. Fibra Óptica", date: "01/06/2026", score: 17, duration: 4, classCode: "WIN-FO-03", examDurationMin: 16.3, feedback_aplicar: "Totalmente de acuerdo", feedback_conocimiento: "Excelente", feedback_senti: "Motivado", feedback_cambiaria: "Ninguno" },
+                 { id: 10, name: "Jessica Miranda", channel: "ALLMARK", area: "VENTAS", cargo: "ASESOR", lugar: "LIMA Y CALLAO", topic: "C.I. Fibra Óptica", date: "01/06/2026", score: 15, duration: 4, classCode: "WIN-FO-03", examDurationMin: 19.0, feedback_aplicar: "De acuerdo", feedback_conocimiento: "Excelente", feedback_senti: "Bien", feedback_cambiaria: "Dar más ejemplos de la competencia" },
+
+                 { id: 11, name: "William Carranza", channel: "ALFACOM", area: "VENTAS", cargo: "ASESOR", lugar: "PROVINCIA", topic: "C.I. Fibra Óptica", date: "02/06/2026", score: 12, duration: 4, classCode: "WIN-FO-04", examDurationMin: 1.5, feedback_aplicar: "De acuerdo", feedback_conocimiento: "Bueno", feedback_senti: "Neutral", feedback_cambiaria: "Mejorar la conexión del formador" },
+                 { id: 12, name: "Jose Soto", channel: "ALFACOM", area: "VENTAS", cargo: "ASESOR", lugar: "PROVINCIA", topic: "C.I. Fibra Óptica", date: "02/06/2026", score: 16, duration: 4, classCode: "WIN-FO-04", examDurationMin: 15.0, feedback_aplicar: "Totalmente de acuerdo", feedback_conocimiento: "Excelente", feedback_senti: "Motivado", feedback_cambiaria: "Nada" },
+
+                 { id: 13, name: "Bryan Benites", channel: "ALIV", area: "VENTAS", cargo: "ASESOR", lugar: "PROVINCIA", topic: "C.I. Fibra Óptica", date: "02/06/2026", score: 13, duration: 4, classCode: "WIN-FO-05", examDurationMin: 11.2, feedback_aplicar: "De acuerdo", feedback_conocimiento: "Bueno", feedback_senti: "Bien", feedback_cambiaria: "Nada, excelente taller" },
+                 { id: 14, name: "Karina Cabrera", channel: "ALIV", area: "VENTAS", cargo: "ASESOR", lugar: "PROVINCIA", topic: "C.I. Fibra Óptica", date: "02/06/2026", score: 15, duration: 4, classCode: "WIN-FO-05", examDurationMin: 16.8, feedback_aplicar: "Totalmente de acuerdo", feedback_conocimiento: "Excelente", feedback_senti: "Feliz", feedback_cambiaria: "Mejorar los manuales compartidos" }
+            ];
+
+            document.getElementById('status-training').innerText = `Demo cargado con ${responses.length} respuestas`;
+            document.getElementById('status-training').classList.remove('hidden');
+
+            document.getElementById('map-name').innerText = "Col 15+Col 12";
+            document.getElementById('map-channel').innerText = "Col 18";
+            document.getElementById('map-area').innerText = "Col 21";
+            document.getElementById('map-cargo').innerText = "Col 24";
+            document.getElementById('map-lugar').innerText = "Col 27";
+            document.getElementById('map-score').innerText = "Col 6";
+            document.getElementById('mapping-summary').classList.remove('hidden');
+
+            populateFilterOptions();
+            document.getElementById('filter-topic').value = "C.I. Fibra Óptica";
+
+            applyFilters();
+        }
+
+        // ----------------------------------------------------
+        // TEMPLATE EXPORTERS
+        // ----------------------------------------------------
+        
+        function downloadTemplates() {
+            const wbQuiz = XLSX.utils.book_new();
+            const quizHeaders = new Array(60).fill("");
+            quizHeaders[0] = "Id";
+            quizHeaders[1] = "Hora de inicio";
+            quizHeaders[2] = "Hora de finalización";
+            quizHeaders[3] = "Correo electrónico";
+            quizHeaders[4] = "Nombre";
+            quizHeaders[5] = "Total de puntos";
+            quizHeaders[8] = "Ingresar tu numero de documento de Identidas (DNI o CE)";
+            quizHeaders[11] = "Apellidos";
+            quizHeaders[14] = "Nombres";
+            quizHeaders[17] = "Selecciona a la empresa que perteneces (nombre de la empresa)";
+            quizHeaders[20] = "Seleccione la área de trabajo";
+            quizHeaders[23] = "Seleccione el cargo";
+            quizHeaders[26] = "Seleccione su lugar de trabajo";
+            quizHeaders[29] = "Selecciona el tipo de capacitación:";
+            quizHeaders[32] = "Nombre de la capacitación";
+            quizHeaders[53] = "Duración de la capacitación (Horas):";
+
+            const quizRowSample = new Array(60).fill("");
+            quizRowSample[0] = "1";
+            quizRowSample[2] = "2026-06-22";
+            quizRowSample[3] = "juan.perez@win.pe";
+            quizRowSample[5] = "15";
+            quizRowSample[11] = "Perez";
+            quizRowSample[14] = "Juan";
+            quizRowSample[17] = "SALES360";
+            quizRowSample[20] = "VENTAS";
+            quizRowSample[23] = "ASESOR";
+            quizRowSample[26] = "LIMA Y CALLAO";
+            quizRowSample[29] = "Inicial";
+            quizRowSample[32] = "C.I. Fibra Óptica";
+            quizRowSample[53] = "4";
+
+            const wsQuiz = XLSX.utils.aoa_to_sheet([quizHeaders, quizRowSample]);
+            XLSX.utils.book_append_sheet(wbQuiz, wsQuiz, "Quiz Responses");
+            XLSX.writeFile(wbQuiz, "Plantilla_Quiz_Microsoft_Forms_WIN.xlsx");
+
+            const wbRoster = XLSX.utils.book_new();
+            const wsRosterData = [
+                ["", "JEFE", "SUPERVISOR", "AGENCIA", "PROVINCIA", "UBICACION"],
+                ["", "GERARDO MONTOYA", "IMALAY USCATEGUI", "SALES360", "LIMA Y CALLAO", "LIMA"],
+                ["", "GERARDO MONTOYA", "IMALAY USCATEGUI", "SALES 365", "LIMA Y CALLAO", "LIMA"],
+                ["", "MARIA ROJAS", "GUSTAVO PALACIOS", "ALFACOM", "PROVINCIA", "PROVINCIA"]
+            ];
+            const wsRoster = XLSX.utils.aoa_to_sheet(wsRosterData);
+            XLSX.utils.book_append_sheet(wbRoster, wsRoster, "Active Agencies");
+            XLSX.writeFile(wbRoster, "01_Lista_agencias_Template.xlsx");
+        }
+
+        function exportFilteredData() {
+            try {
+                if (typeof XLSX === 'undefined') {
+                    const script = document.createElement('script');
+                    script.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+                    document.head.appendChild(script);
+                    alert("Cargando la biblioteca de Excel. Por favor, intenta de nuevo en unos segundos.");
+                    return;
+                }
+                const activeList = filteredResponses.length > 0 ? filteredResponses : responses;
+                if (activeList.length === 0) {
+                    alert("No hay registros para exportar.");
+                    return;
+                }
+                
+                const dataToExport = activeList.map(r => ({
+                    "Nombre Completo": r.name,
+                    "Empresa / Socio": r.channel,
+                    "Área": r.area,
+                    "Cargo": r.cargo,
+                    "Lugar / Sede": r.lugar,
+                    "Tema": r.topic,
+                    "Código de Aula": r.classCode || 'General',
+                    "Fecha": r.date,
+                    "Nota": r.score,
+                    "Tiempo de Examen (min)": r.examDurationMin || 0,
+                    "Duración (h)": r.duration,
+                    "Estado": r.score >= passingScore ? "Aprobado" : "Requiere Refuerzo"
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(dataToExport);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Participantes Filtrados");
+                XLSX.writeFile(wb, "Reporte_Evaluaciones_WIN.xlsx");
+                showToast("¡Excel de resultados descargado con éxito!");
+            } catch (error) {
+                console.error("Error al exportar a Excel:", error);
+                alert("Ocurrió un error al generar el archivo Excel: " + error.message);
+            }
+        }
+
+        function exportAgencyReportToExcel() {
+            try {
+                if (typeof XLSX === 'undefined') {
+                    alert("La biblioteca de Excel no está cargada. Recarga la página o inténtalo de nuevo.");
+                    return;
+                }
+                const activeTopicFilter = document.getElementById('filter-topic').value;
+                const analysis = calculateAgencyMatching(activeTopicFilter);
+
+                const dataToExport = analysis.agenciesList.filter(a => a.trained > 0).map(a => ({
+                    "Jefe": a.jefe,
+                    "Supervisor": a.supervisor,
+                    "Agencia / Socio": a.name,
+                    "Lugar (Sede)": a.region,
+                    "Meta Headcount": a.meta,
+                    "Evaluados": a.trained,
+                    "Nota Promedio": a.avgScore !== '-' ? a.avgScore : 'N/A',
+                    "Tasa Aprobación %": a.passRate !== '-' ? a.passRate : 'N/A',
+                    "Cobertura %": a.coverage !== '-' ? a.coverage : '0%',
+                    "Estado": a.status
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(dataToExport);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Reporte Agencias");
+                const topicName = activeTopicFilter ? activeTopicFilter.substring(0, 20) : "General";
+                XLSX.writeFile(wb, `Reporte_Cobertura_Agencias_${topicName}.xlsx`);
+                showToast("¡Excel de cobertura de agencias descargado con éxito!");
+            } catch (error) {
+                console.error("Error al exportar cobertura de agencias:", error);
+                alert("Ocurrió un error al generar el archivo Excel: " + error.message);
+            }
+        }
+
+        function copyUnparticipatedAgencies() {
+            const activeTopicFilter = document.getElementById('filter-topic').value;
+            const analysis = calculateAgencyMatching(activeTopicFilter);
+            const missing = analysis.agenciesList.filter(a => a.trained === 0);
+
+            if (missing.length === 0) {
+                alert("¡Excelente! Todas las agencias activas tienen al menos un participante registrado.");
+                return;
+            }
+
+            const textList = missing.map(m => `Agencia: ${m.name} | Supervisor: ${m.supervisor} | Jefe: ${m.jefe}`).join('\n');
+            navigator.clipboard.writeText(textList).then(() => {
+                alert(`Copiado al portapapeles: ${missing.length} agencias con CERO participación.`);
+            }).catch(e => {
+                console.error("Error al copiar: ", e);
+            });
+        }
+
+        // ----------------------------------------------------
+        // DYNAMIC FILTER OPTIONS POPULATION
+        // ----------------------------------------------------
+        
+        function populateFilterOptions() {
+            function populateSelect(selectId, dataSet, placeholder) {
+                const select = document.getElementById(selectId);
+                if (!select) return;
+                const prevVal = select.value;
+                select.innerHTML = `<option value="">${placeholder}</option>`;
+                Array.from(dataSet).sort().forEach(item => {
+                    if (item) {
+                        select.innerHTML += `<option value="${item}">${item}</option>`;
+                    }
+                });
+                if (Array.from(dataSet).includes(prevVal)) {
+                    select.value = prevVal;
+                }
+            }
+
+            const empresas = new Set();
+            const temas = new Set();
+            const areas = new Set();
+            const classCodes = new Set();
+            const lugares = new Set();
+            const ubicaciones = new Set();
+
+            responses.forEach(r => {
+                if (r.channel) empresas.add(r.channel);
+                if (r.topic) temas.add(r.topic);
+                if (r.area) areas.add(r.area);
+                if (r.classCode) classCodes.add(r.classCode);
+                if (r.lugar) lugares.add(r.lugar);
+            });
+
+            activeAgencies.forEach(a => {
+                if (a.name) empresas.add(a.name);
+                if (a.region) lugares.add(a.region);
+                if (a.ubicacion) ubicaciones.add(a.ubicacion);
+            });
+
+            populateSelect('filter-channel', empresas, 'Todas las Agencias');
+            populateSelect('filter-topic', temas, 'Todos los Temas');
+            populateSelect('filter-area', areas, 'Todas las Áreas');
+            populateSelect('filter-class-code', classCodes, 'Todos los Códigos');
+            populateSelect('filter-lugar', lugares, 'Todos los Lugares');
+            populateSelect('filter-roster-ubicacion', ubicaciones, 'Todas las Ubicaciones');
+        }
+
+        // ----------------------------------------------------
+        // CROSS REFERENCE & COVERAGE CALCULATIONS
+        // ----------------------------------------------------
+        
+        function calculateAgencyMatching(selectedTopic) {
+            const ubicFilterEl = document.getElementById('filter-roster-ubicacion');
+            const ubicFilter = ubicFilterEl ? ubicFilterEl.value : '';
+            const chanFilterEl = document.getElementById('filter-channel');
+            const chanFilter = chanFilterEl ? chanFilterEl.value : '';
+            const lugarFilterEl = document.getElementById('filter-lugar');
+            const lugarFilter = lugarFilterEl ? lugarFilterEl.value : '';
+
+            // Filter active agencies first
+            let filteredAgencies = activeAgencies;
+            if (ubicFilter) {
+                filteredAgencies = activeAgencies.filter(a => a.ubicacion && a.ubicacion.toUpperCase() === ubicFilter.toUpperCase());
+            }
+            if (chanFilter) {
+                filteredAgencies = filteredAgencies.filter(a => a.name.toUpperCase() === chanFilter.toUpperCase());
+            }
+            if (lugarFilter) {
+                filteredAgencies = filteredAgencies.filter(a => regionsMatch(a.region, lugarFilter));
+            }
+
+            // Filter responses by topic and also by agency location if set, prioritizing the active filtered responses
+            const activeList = filteredResponses.length > 0 ? filteredResponses : responses;
+            const topicResponses = activeList.filter(r => {
+                const matchTopic = !selectedTopic || r.topic === selectedTopic;
+                if (!matchTopic) return false;
+                
+                if (ubicFilter) {
+                    const agencyMatch = findMatchingAgency(r.channel, r.lugar);
+                    return agencyMatch && agencyMatch.ubicacion && agencyMatch.ubicacion.toUpperCase() === ubicFilter.toUpperCase();
+                }
+                return true;
+            });
+
+            const agencyData = {};
+            topicResponses.forEach(r => {
+                const agencyMatch = findMatchingAgency(r.channel, r.lugar);
+                if (!agencyMatch) return;
+                
+                const key = `${agencyMatch.name.toUpperCase()}||${agencyMatch.region.toUpperCase()}`;
+                if (!agencyData[key]) {
+                    agencyData[key] = { count: 0, scoreSum: 0, passedCount: 0 };
+                }
+                agencyData[key].count++;
+                agencyData[key].scoreSum += r.score;
+                if (r.score >= passingScore) {
+                    agencyData[key].passedCount++;
+                }
+            });
+
+            let totalActiveAgencies = filteredAgencies.length;
+            let participatingCount = 0;
+
+            const agenciesList = filteredAgencies.map(agency => {
+                const key = `${agency.name.toUpperCase()}||${agency.region.toUpperCase()}`;
+                const match = agencyData[key];
+                
+                let trained = 0;
+                let avgScore = '-';
+                let passRate = '-';
+                let coverage = '-';
+                let status = 'Sin Participación';
+
+                const meta = agencyTargets[key] || agencyTargets[agency.name] || 0;
+
+                if (match) {
+                    participatingCount++;
+                    trained = match.count;
+                    avgScore = (match.scoreSum / match.count).toFixed(2);
+                    passRate = ((match.passedCount / match.count) * 100).toFixed(1) + '%';
+                    
+                    if (meta > 0) {
+                        const covVal = (match.count / meta) * 100;
+                        coverage = covVal.toFixed(1) + '%';
+                        status = covVal >= 100 ? 'Completo' : 'Parcial';
+                    } else {
+                        status = 'Participó';
+                    }
+                }
+
+                return {
+                    jefe: agency.jefe,
+                    supervisor: agency.supervisor,
+                    name: agency.name,
+                    region: agency.region,
+                    ubicacion: agency.ubicacion,
+                    meta: meta,
+                    trained: trained,
+                    avgScore: avgScore,
+                    passRate: passRate,
+                    coverage: coverage,
+                    status: status
+                };
+            });
+
+            return {
+                agenciesList: agenciesList,
+                totalActiveCount: totalActiveAgencies,
+                participatingCount: participatingCount,
+                agencyCoveragePct: totalActiveAgencies > 0 ? (participatingCount / totalActiveAgencies) * 100 : 0
+            };
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const query = normalizeString(document.getElementById('search-query').value);
+            const chanFilter = document.getElementById('filter-channel').value;
+            const topicFilter = document.getElementById('filter-topic').value;
+            const areaFilter = document.getElementById('filter-area').value;
+            const classCodeFilter = document.getElementById('filter-class-code') ? document.getElementById('filter-class-code').value : '';
+            const lugarFilter = document.getElementById('filter-lugar').value;
+            const ubicFilterEl = document.getElementById('filter-roster-ubicacion');
+            const ubicFilter = ubicFilterEl ? ubicFilterEl.value : '';
+            const dateStartStr = document.getElementById('filter-date-start') ? document.getElementById('filter-date-start').value : '';
+            const dateEndStr = document.getElementById('filter-date-end') ? document.getElementById('filter-date-end').value : '';
+            let startDate = null;
+            let endDate = null;
+            if (dateStartStr) startDate = new Date(dateStartStr + "T00:00:00");
+            if (dateEndStr) endDate = new Date(dateEndStr + "T23:59:59");
+
+            filteredResponses = responses.filter(r => {
+                const matchQuery = !query || 
+                                   normalizeString(r.name).includes(query) || 
+                                   normalizeString(r.channel).includes(query) || 
+                                   normalizeString(r.topic).includes(query) ||
+                                   normalizeString(r.cargo).includes(query) ||
+                                   normalizeString(r.classCode).includes(query);
+                const matchChan = !chanFilter || r.channel === chanFilter;
+                const matchTopic = !topicFilter || r.topic === topicFilter;
+                const matchArea = !areaFilter || r.area === areaFilter;
+                const matchClassCode = !classCodeFilter || r.classCode === classCodeFilter;
+                const matchLugar = !lugarFilter || r.lugar === lugarFilter;
+                
+                let matchUbic = true;
+                if (ubicFilter) {
+                    const agencyMatch = findMatchingAgency(r.channel, r.lugar);
+                    matchUbic = agencyMatch && agencyMatch.ubicacion && agencyMatch.ubicacion.toUpperCase() === ubicFilter.toUpperCase();
+                }
+                
+                let matchDate = true;
+                if (startDate || endDate) {
+                    let parts = r.date.split('/');
+                    if (parts.length === 3) {
+                        let d = parseInt(parts[0], 10);
+                        let m = parseInt(parts[1], 10) - 1;
+                        let y = parseInt(parts[2], 10);
+                        let rowDate = new Date(y, m, d);
+                        if (startDate && rowDate < startDate) matchDate = false;
+                        if (endDate && rowDate > endDate) matchDate = false;
+                    } else {
+                        let rowDate = new Date(r.date + "T12:00:00");
+                        if (!isNaN(rowDate)) {
+                            if (startDate && rowDate < startDate) matchDate = false;
+                            if (endDate && rowDate > endDate) matchDate = false;
+                        }
+                    }
+                }
+                
+                return matchQuery && matchChan && matchTopic && matchArea && matchClassCode && matchLugar && matchUbic && matchDate;
+            });
+
+            currentPage = 1;
+            updateDashboard();
+        }
+
+        function normalizeString(str) {
+            return String(str || '')
+                .toLowerCase()
+                .trim()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/\s+/g, ' ');
+        }
+
+        function parseExcelDateTime(val) {
+            if (!val) return null;
+            if (val instanceof Date) return val;
+            
+            // Try standard Date parsing
+            let parsed = new Date(val);
+            if (!isNaN(parsed.getTime())) return parsed;
+            
+            // Fallback manual parsing for typical formats like "M/D/YY H:mm:ss", "D/M/YY H:mm:ss", "M/D/YYYY H:mm:ss"
+            const str = String(val).trim();
+            const parts = str.split(' ');
+            if (parts.length >= 2) {
+                const datePart = parts[0]; 
+                const timePart = parts[1]; 
+                
+                const dateParts = datePart.split('/');
+                const timeParts = timePart.split(':');
+                
+                if (dateParts.length === 3 && timeParts.length >= 2) {
+                    let month = parseInt(dateParts[0]) - 1; // 0-indexed
+                    let day = parseInt(dateParts[1]);
+                    let year = parseInt(dateParts[2]);
+                    if (year < 100) year += 2000;
+                    
+                    if (month > 11) { // swap day and month if month > 12 (means it was D/M/YYYY)
+                        const temp = month + 1;
+                        month = day - 1;
+                        day = temp;
+                    }
+                    
+                    const hours = parseInt(timeParts[0]) || 0;
+                    const minutes = parseInt(timeParts[1]) || 0;
+                    const seconds = parseInt(timeParts[2]) || 0;
+                    
+                    parsed = new Date(year, month, day, hours, minutes, seconds);
+                    if (!isNaN(parsed.getTime())) return parsed;
+                }
+            }
+            return null;
+        }
+
+        function updatePassingScore(val) {
+            passingScore = parseInt(val) || 0;
+            document.getElementById('slider-val').innerText = passingScore;
+            updateDashboard();
+        }
+
+        // ----------------------------------------------------
+        // UI RENDERING CONTROL
+        // ----------------------------------------------------
+        
+        function updateDashboard() {
+            const activeTopicFilter = document.getElementById('filter-topic').value;
+            const agencyAnalysis = calculateAgencyMatching(activeTopicFilter);
+
+            // 1. Render KPIs
+            drawKPIs(agencyAnalysis);
+
+            // 2. Render Charts
+            drawCharts(agencyAnalysis);
+
+            // 3. Render Tables
+            renderAgencyCoverageTable(agencyAnalysis);
+            renderResponsesTable();
+            renderRosterConfigTable();
+            
+            // 4. Render Insights
+            drawInsights();
+            
+            // 5. Render Satisfaction Data
+            renderSatisfactionData();
+        }
+
+        function drawKPIs(agencyAnalysis) {
+            const activeList = filteredResponses.length > 0 ? filteredResponses : responses;
+
+            // Cobertura Roster/Agencias KPI
+            if (activeAgencies.length > 0) {
+                const covPct = agencyAnalysis.agencyCoveragePct;
+                document.getElementById('kpi-coverage').innerText = `${covPct.toFixed(1)}%`;
+                document.getElementById('kpi-coverage-sub').innerText = `${agencyAnalysis.participatingCount} de ${agencyAnalysis.totalActiveCount} Agencias`;
+                document.getElementById('kpi-coverage-bar').style.width = `${covPct}%`;
+            } else {
+                document.getElementById('kpi-coverage').innerText = "0.0%";
+                document.getElementById('kpi-coverage-sub').innerText = "Cargue '01 Lista agencias.xlsx'";
+                document.getElementById('kpi-coverage-bar').style.width = "0%";
+            }
+
+            // Total Evaluados KPI
+            document.getElementById('kpi-attendance').innerText = activeList.length;
+            document.getElementById('kpi-attendance-sub').innerText = `${activeList.length} evaluaciones registradas`;
+
+            // Average Score KPI
+            let scoresSum = 0;
+            let scoreCount = 0;
+            activeList.forEach(r => {
+                if (r.score !== null && !isNaN(r.score)) {
+                    scoresSum += r.score;
+                    scoreCount++;
+                }
+            });
+            const avgScore = scoreCount > 0 ? scoresSum / scoreCount : 0;
+            document.getElementById('kpi-avg-score').innerText = avgScore.toFixed(2);
+            document.getElementById('kpi-avg-bar').style.width = `${(avgScore / 20) * 100}%`;
+
+            const avgCard = document.getElementById('kpi-avg-score');
+            if (avgScore >= 13) {
+                avgCard.className = "font-outfit text-2xl md:text-3xl font-extrabold text-emerald-600";
+            } else if (avgScore >= 10) {
+                avgCard.className = "font-outfit text-2xl md:text-3xl font-extrabold text-amber-500";
+            } else {
+                avgCard.className = "font-outfit text-2xl md:text-3xl font-extrabold text-rose-600";
+            }
+
+            // Passing Rate KPI
+            let passedCount = 0;
+            activeList.forEach(r => {
+                if (r.score >= passingScore) passedCount++;
+            });
+            const passRate = scoreCount > 0 ? (passedCount / scoreCount) * 100 : 0;
+            document.getElementById('kpi-pass-rate').innerText = `${passRate.toFixed(1)}%`;
+            document.getElementById('kpi-pass-sub').innerText = `${passedCount} Aprobados de ${scoreCount}`;
+            document.getElementById('kpi-pass-bar').style.width = `${passRate}%`;
+
+            // Duration & Refuerzos count KPI
+            let durationSum = 0;
+            let durationCount = 0;
+            let reinforcementCount = 0;
+            activeList.forEach(r => {
+                if (r.duration) {
+                    durationSum += r.duration;
+                    durationCount++;
+                }
+                if (r.score < passingScore) {
+                    reinforcementCount++;
+                }
+            });
+            const avgDuration = durationCount > 0 ? durationSum / durationCount : 0;
+            document.getElementById('kpi-duration').innerText = `${avgDuration.toFixed(1)}h`;
+            document.getElementById('kpi-refuerzo').innerText = reinforcementCount;
+        }
+
+        function drawInsights() {
+            const lowChannelsContainer = document.getElementById('insight-low-channels');
+            const lowTopicsContainer = document.getElementById('insight-low-topics');
+            const lowAgentsContainer = document.getElementById('insight-low-agents');
+
+            const activeList = filteredResponses.length > 0 ? filteredResponses : responses;
+            if (activeList.length === 0) return;
+
+            // 1. Lowest average score agencies
+            const agencyScores = {};
+            activeList.forEach(r => {
+                if (!agencyScores[r.channel]) agencyScores[r.channel] = { sum: 0, cnt: 0 };
+                agencyScores[r.channel].sum += r.score;
+                agencyScores[r.channel].cnt++;
+            });
+
+            let lowAgencies = [];
+            Object.keys(agencyScores).forEach(chan => {
+                const avg = agencyScores[chan].sum / agencyScores[chan].cnt;
+                if (avg < passingScore) {
+                    lowAgencies.push({ name: chan, avg: avg });
+                }
+            });
+
+            if (lowAgencies.length > 0) {
+                lowChannelsContainer.innerHTML = '';
+                lowAgencies.sort((a,b) => a.avg - b.avg).slice(0, 3).forEach(item => {
+                    lowChannelsContainer.innerHTML += `
+                        <div class="flex items-center justify-between bg-rose-50 border-l-4 border-rose-500 p-2 rounded-r-lg">
+                            <span class="font-semibold text-rose-700 truncate max-w-[130px]">${item.name}</span>
+                            <span class="bg-rose-100 text-rose-800 font-bold px-1.5 py-0.5 rounded text-[10px]">Nota Prom: ${item.avg.toFixed(1)}</span>
+                        </div>`;
+                });
+            } else {
+                lowChannelsContainer.innerHTML = '<div class="text-emerald-600 font-medium flex items-center gap-1 text-[11px]"><i class="fa-solid fa-circle-check"></i> Todas las agencias tienen promedios conformes.</div>';
+            }
+
+            // 2. Lowest average score topics
+            const topicScores = {};
+            activeList.forEach(r => {
+                if (!topicScores[r.topic]) topicScores[r.topic] = { sum: 0, cnt: 0 };
+                topicScores[r.topic].sum += r.score;
+                topicScores[r.topic].cnt++;
+            });
+
+            let lowTopics = [];
+            Object.keys(topicScores).forEach(t => {
+                const avg = topicScores[t].sum / topicScores[t].cnt;
+                if (avg < passingScore) {
+                    lowTopics.push({ name: t, avg: avg });
+                }
+            });
+
+            if (lowTopics.length > 0) {
+                lowTopicsContainer.innerHTML = '';
+                lowTopics.sort((a,b) => a.avg - b.avg).forEach(t => {
+                    lowTopicsContainer.innerHTML += `
+                        <div class="flex items-center justify-between bg-amber-50 border-l-4 border-amber-500 p-2 rounded-r-lg">
+                            <span class="font-semibold text-amber-700 truncate max-w-[155px]" title="${t.name}">${t.name}</span>
+                            <span class="bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded text-[10px]">Prom: ${t.avg.toFixed(1)}</span>
+                        </div>`;
+                });
+            } else {
+                lowTopicsContainer.innerHTML = '<div class="text-emerald-600 font-medium flex items-center gap-1 text-[11px]"><i class="fa-solid fa-circle-check"></i> Buen desempeño general en todos los temas.</div>';
+            }
+
+            // 3. Lowest score agents
+            const failedAgents = activeList
+                .filter(r => r.score < passingScore)
+                .sort((a,b) => a.score - b.score)
+                .slice(0, 5);
+
+            if (failedAgents.length > 0) {
+                lowAgentsContainer.innerHTML = '';
+                failedAgents.forEach(a => {
+                    const cleanNameForJS = a.name.replace(/'/g, "\\'");
+                    lowAgentsContainer.innerHTML += `
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-1.5 group/row">
+                            <div class="flex flex-col min-w-0">
+                                <span class="font-semibold text-slate-800 dark:text-slate-200 truncate">${a.name}</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-500 truncate">${a.channel} | ${a.topic}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="copySingleAgent('${cleanNameForJS}', ${a.score.toFixed(1)})" class="opacity-0 group-hover/row:opacity-100 text-slate-400 dark:text-slate-500 hover:text-win-orange p-1 rounded transition-opacity duration-200" title="Copiar nombre y nota">
+                                    <i class="fa-regular fa-copy text-xs"></i>
+                                </button>
+                                <span class="bg-rose-100 text-rose-800 font-bold px-1.5 py-0.5 rounded text-[10px] flex-shrink-0">${a.score.toFixed(1)}</span>
+                            </div>
+                        </div>`;
+                });
+            } else {
+                lowAgentsContainer.innerHTML = '<div class="text-emerald-600 font-medium flex items-center gap-1 text-[11px]"><i class="fa-solid fa-circle-check"></i> Ningún agente reprobado.</div>';
+            }
+        }
+
+        // ----------------------------------------------------
+        // VISUAL CHART DRAWING (Chart.js)
+        // ----------------------------------------------------
+        
+        function drawCharts(agencyAnalysis) {
+            const activeList = filteredResponses.length > 0 ? filteredResponses : responses;
+
+            if (activeList.length === 0) {
+                document.getElementById('chart-scores-empty').classList.remove('hidden');
+                document.getElementById('chart-participants-count-empty').classList.remove('hidden');
+                document.getElementById('chart-status-empty').classList.remove('hidden');
+                document.getElementById('chart-trend-empty').classList.remove('hidden');
+                document.getElementById('chart-durations-empty').classList.remove('hidden');
+                
+                if (charts.scoreBar) charts.scoreBar.destroy();
+                if (charts.participantsBar) charts.participantsBar.destroy();
+                if (charts.statusDoughnut) charts.statusDoughnut.destroy();
+                if (charts.trendLine) charts.trendLine.destroy();
+                if (charts.durationsBar) charts.durationsBar.destroy();
+                return;
+            }
+
+            document.getElementById('chart-scores-empty').classList.add('hidden');
+            document.getElementById('chart-participants-count-empty').classList.add('hidden');
+            document.getElementById('chart-status-empty').classList.add('hidden');
+            document.getElementById('chart-trend-empty').classList.add('hidden');
+            document.getElementById('chart-durations-empty').classList.add('hidden');
+
+            // 1. Chart 1: Average Scores by Agency Branch (Horizontal Bar Chart)
+            const agencyScores = {};
+            activeList.forEach(r => {
+                const agencyMatch = findMatchingAgency(r.channel, r.lugar);
+                const key = agencyMatch ? `${agencyMatch.name} (${agencyMatch.region})` : r.channel;
+                if (!agencyScores[key]) agencyScores[key] = { sum: 0, count: 0 };
+                agencyScores[key].sum += r.score;
+                agencyScores[key].count++;
+            });
+
+            const scoreLabels = Object.keys(agencyScores).sort();
+            const scoreValues = scoreLabels.map(label => agencyScores[label].sum / agencyScores[label].count);
+
+            const scoreBarParent = document.getElementById('chart-scores-bar').parentElement;
+            scoreBarParent.style.height = `${Math.max(280, scoreLabels.length * 32)}px`;
+
+            if (charts.scoreBar) charts.scoreBar.destroy();
+            charts.scoreBar = new Chart(document.getElementById('chart-scores-bar'), {
+                type: 'bar',
+                data: {
+                    labels: scoreLabels,
+                    datasets: [{
+                        label: 'Nota Promedio',
+                        data: scoreValues,
+                        backgroundColor: '#FF5A0A',
+                        borderRadius: 6,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            right: 60
+                        }
+                    },
+                    scales: {
+                        x: { min: 0, max: 20 },
+                        y: { grid: { display: false } }
+                    },
+                    plugins: { 
+                        legend: { display: false }
+                    }
+                },
+                plugins: [barLabelsPlugin]
+            });
+
+            // 2. Chart 2: Cantidad de Evaluados por Agencia (Horizontal Bar Chart)
+            const agencyCounts = {};
+            activeList.forEach(r => {
+                const agencyMatch = findMatchingAgency(r.channel, r.lugar);
+                const key = agencyMatch ? `${agencyMatch.name} (${agencyMatch.region})` : r.channel;
+                agencyCounts[key] = (agencyCounts[key] || 0) + 1;
+            });
+
+            const countLabels = Object.keys(agencyCounts).sort();
+            const countValues = countLabels.map(label => agencyCounts[label]);
+
+            const countBarParent = document.getElementById('chart-participants-count-bar').parentElement;
+            countBarParent.style.height = `${Math.max(280, countLabels.length * 32)}px`;
+
+            if (charts.participantsBar) charts.participantsBar.destroy();
+            charts.participantsBar = new Chart(document.getElementById('chart-participants-count-bar'), {
+                type: 'bar',
+                data: {
+                    labels: countLabels,
+                    datasets: [{
+                        label: 'Evaluados',
+                        data: countValues,
+                        backgroundColor: '#ffc200',
+                        borderRadius: 6,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            right: 60
+                        }
+                    },
+                    scales: {
+                        x: { min: 0, ticks: { precision: 0 } },
+                        y: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                },
+                plugins: [{
+                    id: 'participantsLabels',
+                    afterDatasetsDraw(chart) {
+                        const { ctx } = chart;
+                        ctx.save();
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'middle';
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((bar, index) => {
+                                const val = dataset.data[index];
+                                if (val === null || isNaN(val)) return;
+                                ctx.font = 'bold 10px Inter, sans-serif';
+                                ctx.fillStyle = '#1e293b';
+                                ctx.fillText(`${val} part.`, bar.x + 6, bar.y);
+                            });
+                        });
+                        ctx.restore();
+                    }
+                }]
+            });
+
+            // 3. Chart 3: Doughnut status (Approved vs Failed)
+            let approved = 0;
+            let failed = 0;
+            activeList.forEach(r => {
+                if (r.score >= passingScore) approved++;
+                else failed++;
+            });
+
+            if (charts.statusDoughnut) charts.statusDoughnut.destroy();
+            charts.statusDoughnut = new Chart(document.getElementById('chart-status-doughnut'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Aprobados', 'Requieren Refuerzo'],
+                    datasets: [{
+                        data: [approved, failed],
+                        backgroundColor: ['#10b981', '#FF5A0A'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 10, padding: 10, font: { size: 10 } }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // 4. Chart 4: Trend Line Chart over time
+            const dateGrades = {};
+            activeList.forEach(r => {
+                if (r.date && r.date !== 'Sin fecha') {
+                    if (!dateGrades[r.date]) dateGrades[r.date] = { sum: 0, cnt: 0 };
+                    dateGrades[r.date].sum += r.score;
+                    dateGrades[r.date].cnt++;
+                }
+            });
+
+            const sortedDates = Object.keys(dateGrades).sort((a, b) => {
+                const partsA = a.split('/');
+                const partsB = b.split('/');
+                if (partsA.length === 3 && partsB.length === 3) {
+                    return new Date(partsA[2], partsA[1]-1, partsA[0]) - new Date(partsB[2], partsB[1]-1, partsB[0]);
+                }
+                return a.localeCompare(b);
+            });
+
+            const trendValues = sortedDates.map(d => dateGrades[d].sum / dateGrades[d].cnt);
+
+            if (charts.trendLine) charts.trendLine.destroy();
+            charts.trendLine = new Chart(document.getElementById('chart-trend-line'), {
+                type: 'line',
+                data: {
+                    labels: sortedDates,
+                    datasets: [{
+                        label: 'Calificación Promedio',
+                        data: trendValues,
+                        borderColor: '#FF5A0A',
+                        backgroundColor: 'rgba(255, 90, 10, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#FF5A0A'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 20 },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 5. Chart 5: Tiempo Promedio de Examen por Agencia (Horizontal Bar Chart)
+            const agencyDurations = {};
+            activeList.forEach(r => {
+                const agencyMatch = findMatchingAgency(r.channel, r.lugar);
+                const key = agencyMatch ? `${agencyMatch.name} (${agencyMatch.region})` : r.channel;
+                if (r.examDurationMin !== undefined && r.examDurationMin > 0) {
+                    if (!agencyDurations[key]) agencyDurations[key] = { sum: 0, count: 0 };
+                    agencyDurations[key].sum += r.examDurationMin;
+                    agencyDurations[key].count++;
+                }
+            });
+
+            const durationLabels = Object.keys(agencyDurations).sort();
+            const durationValues = durationLabels.map(label => agencyDurations[label].sum / agencyDurations[label].count);
+            const durationColors = durationValues.map(val => val < 2.0 ? '#ef4444' : '#64748b');
+
+            const durationBarParent = document.getElementById('chart-durations-bar').parentElement;
+            durationBarParent.style.height = `${Math.max(280, durationLabels.length * 32)}px`;
+
+            if (charts.durationsBar) charts.durationsBar.destroy();
+            charts.durationsBar = new Chart(document.getElementById('chart-durations-bar'), {
+                type: 'bar',
+                data: {
+                    labels: durationLabels,
+                    datasets: [{
+                        label: 'Minutos Promedio',
+                        data: durationValues,
+                        backgroundColor: durationColors,
+                        borderRadius: 6,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            right: 60
+                        }
+                    },
+                    scales: {
+                        x: { min: 0, title: { display: true, text: 'Minutos', font: { size: 9, weight: 'bold' } } },
+                        y: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                },
+                plugins: [{
+                    id: 'durationLabels',
+                    afterDatasetsDraw(chart) {
+                        const { ctx } = chart;
+                        ctx.save();
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'middle';
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((bar, index) => {
+                                const val = dataset.data[index];
+                                if (val === null || isNaN(val)) return;
+                                ctx.font = 'bold 10px Inter, sans-serif';
+                                ctx.fillStyle = val < 2.0 ? '#ef4444' : '#334155';
+                                ctx.fillText(`${val.toFixed(1)} min`, bar.x + 6, bar.y);
+                            });
+                        });
+                        ctx.restore();
+                    }
+                }]
+            });
+        }
+
+        // ----------------------------------------------------
+        // TABLE RENDERERS
+        // ----------------------------------------------------
+        
+        function sortResponses(key) {
+            if (sortKey === key) {
+                sortAsc = !sortAsc;
+            } else {
+                sortKey = key;
+                sortAsc = true;
+            }
+            updateDashboard();
+        }
+
+        function changePageSize(size) {
+            pageSize = parseInt(size);
+            currentPage = 1;
+            renderResponsesTable();
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderResponsesTable();
+            }
+        }
+
+        function nextPage() {
+            const maxPage = Math.ceil(filteredResponses.length / pageSize);
+            if (currentPage < maxPage) {
+                currentPage++;
+                renderResponsesTable();
+            }
+        }
+
+        function renderResponsesTable() {
+            const tableBody = document.getElementById('responses-table-body');
+            
+            if (filteredResponses.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-slate-400 dark:text-slate-500 italic">No se encontraron registros que coincidan con los filtros.</td></tr>`;
+                document.getElementById('pagination-info').innerText = "Mostrando 0-0 de 0 resultados";
+                document.getElementById('btn-prev').disabled = true;
+                document.getElementById('btn-next').disabled = true;
+                return;
+            }
+
+            sortedResponses = [...filteredResponses].sort((a, b) => {
+                let valA = a[sortKey];
+                let valB = b[sortKey];
+
+                if (typeof valA === 'string') {
+                    return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                } else {
+                    return sortAsc ? valA - valB : valB - valA;
+                }
+            });
+
+            const totalItems = sortedResponses.length;
+            const maxPage = Math.ceil(totalItems / pageSize);
+            if (currentPage > maxPage) currentPage = maxPage || 1;
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalItems);
+            const paginatedItems = sortedResponses.slice(startIndex, endIndex);
+
+            document.getElementById('pagination-info').innerText = `Mostrando ${startIndex + 1}-${endIndex} de ${totalItems} resultados`;
+            document.getElementById('btn-prev').disabled = currentPage === 1;
+            document.getElementById('btn-next').disabled = currentPage === maxPage;
+
+            tableBody.innerHTML = '';
+            paginatedItems.forEach(item => {
+                const isPassed = item.score >= passingScore;
+                const badgeClass = isPassed 
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                    : 'bg-rose-50 text-rose-700 border-rose-200';
+                const badgeText = isPassed ? 'Aprobado' : 'Refuerzo';
+
+                tableBody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:bg-slate-800/50 transition border-b border-slate-100 dark:border-slate-700">
+                        <td class="p-3 font-semibold text-slate-800 dark:text-slate-200">${item.name}</td>
+                        <td class="p-3 text-slate-600 dark:text-slate-300 font-semibold">${item.channel}</td>
+                        <td class="p-3 text-slate-500 dark:text-slate-400 dark:text-slate-500">${item.area}</td>
+                        <td class="p-3 text-slate-500 dark:text-slate-400 dark:text-slate-500">${item.cargo}</td>
+                        <td class="p-3 text-slate-500 dark:text-slate-400 dark:text-slate-500">${item.lugar}</td>
+                        <td class="p-3 text-slate-600 dark:text-slate-300 truncate max-w-[150px]" title="${item.topic}">${item.topic}</td>
+                        <td class="p-3 text-slate-400 dark:text-slate-500">${item.date}</td>
+                        <td class="p-3 font-bold text-slate-800 dark:text-slate-200">${item.score.toFixed(2)}</td>
+                        <td class="p-3 text-center text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold">
+                            <div>${item.duration > 0 ? item.duration + 'h' : '-'}</div>
+                            <div class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">${item.examDurationMin > 0 ? item.examDurationMin + ' min' : ''}</div>
+                        </td>
+                        <td class="p-3 text-center">
+                            <span class="px-2 py-0.5 text-[9px] font-bold rounded border ${badgeClass}">
+                                ${badgeText}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Render cross-referenced Active Agencies coverage list (Tab 2)
+        function renderAgencyCoverageTable(analysis) {
+            const tableBody = document.getElementById('agencies-summary-body');
+            const activeTopicFilter = document.getElementById('filter-topic').value;
+            
+            const localAnalysis = analysis || calculateAgencyMatching(activeTopicFilter);
+
+            if (activeAgencies.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-slate-400 dark:text-slate-500 italic">No hay agencias activas configuradas. Configúrelas en la pestaña "Configurar Agencias Activas".</td></tr>`;
+                return;
+            }
+
+            // 1. Calculate dynamic counts for segmented pills
+            const totalCount = localAnalysis.agenciesList.length;
+            const participatedCount = localAnalysis.agenciesList.filter(a => a.trained > 0).length;
+            const missingCount = localAnalysis.agenciesList.filter(a => a.trained === 0).length;
+
+            const cntAll = document.getElementById('count-agency-all');
+            const cntPart = document.getElementById('count-agency-participated');
+            const cntMiss = document.getElementById('count-agency-missing');
+            if (cntAll) cntAll.innerText = totalCount;
+            if (cntPart) cntPart.innerText = participatedCount;
+            if (cntMiss) cntMiss.innerText = missingCount;
+
+            // 2. Read Participation Filter (all, participated, missing)
+            const partFilter = agencyFilterVal;
+            let displayList = localAnalysis.agenciesList;
+
+            if (partFilter === 'participated') {
+                displayList = displayList.filter(a => a.trained > 0);
+            } else if (partFilter === 'missing') {
+                displayList = displayList.filter(a => a.trained === 0);
+            }
+
+            if (displayList.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-slate-400 dark:text-slate-500 italic">Ninguna agencia coincide con la opción seleccionada.</td></tr>`;
+                return;
+            }
+
+            // 3. Render Rows
+            tableBody.innerHTML = '';
+            displayList.forEach(a => {
+                let statusBadge = '';
+                if (a.status === 'Completo') {
+                    statusBadge = '<span class="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200">Completo</span>';
+                } else if (a.status === 'Parcial') {
+                    statusBadge = '<span class="px-2 py-0.5 rounded font-bold text-[10px] bg-amber-50 text-amber-700 border border-amber-200">Parcial</span>';
+                } else if (a.status === 'Participó') {
+                    statusBadge = '<span class="px-2 py-0.5 rounded font-bold text-[10px] bg-sky-50 text-sky-700 border border-sky-200">Participó</span>';
+                } else {
+                    statusBadge = '<span class="px-2 py-0.5 rounded font-bold text-[10px] bg-rose-50 text-rose-700 border border-rose-200">Sin Participación</span>';
+                }
+
+                tableBody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700">
+                        <td class="p-3 font-semibold text-slate-700 dark:text-slate-300">${a.jefe}</td>
+                        <td class="p-3 text-slate-600 dark:text-slate-300 font-semibold">${a.supervisor}</td>
+                        <td class="p-3 text-slate-800 dark:text-slate-200 font-bold">${a.name}</td>
+                        <td class="p-3 text-slate-500 dark:text-slate-400 dark:text-slate-500">${a.region}</td>
+                        <td class="p-3 text-center">
+                            <input type="number" value="${a.meta}" onchange="updateAgencyTarget('${a.name}', '${a.region}', this.value)" class="w-16 text-center py-1 px-1 border border-slate-200 dark:border-slate-600 rounded focus:outline-none focus:ring-1 focus:ring-win-orange">
+                        </td>
+                        <td class="p-3 text-center font-bold text-slate-700 dark:text-slate-300">${a.trained}</td>
+                        <td class="p-3 text-center font-semibold text-slate-600 dark:text-slate-300">${a.avgScore}</td>
+                        <td class="p-3 text-center font-semibold text-slate-600 dark:text-slate-300">${a.passRate}</td>
+                        <td class="p-3 text-center font-bold text-win-orange">${a.coverage}</td>
+                        <td class="p-3 text-center">${statusBadge}</td>
+                    </tr>`;
+            });
+        }
+
+        // Update agency meta headcount target
+        function updateAgencyTarget(agencyName, region, targetVal) {
+            const val = parseInt(targetVal) || 0;
+            const key = `${agencyName}||${region}`;
+            agencyTargets[key] = val;
+            localStorage.setItem('win_agency_targets', JSON.stringify(agencyTargets));
+            updateDashboard();
+        }
+
+        // Render Satisfaction & Feedback Dashboard Data
+        function renderSatisfactionData() {
+            const activeList = filteredResponses.length > 0 ? filteredResponses : responses;
+            const container = document.getElementById('feedback-comments-container');
+            const satTrainerEl = document.getElementById('kpi-sat-trainer');
+            const satTrainerBar = document.getElementById('kpi-sat-trainer-bar');
+            const satApplyEl = document.getElementById('kpi-sat-apply');
+            const satApplyBar = document.getElementById('kpi-sat-apply-bar');
+            const satMoodEl = document.getElementById('kpi-sat-mood');
+            const satCommentsEl = document.getElementById('kpi-sat-comments');
+            const countLabel = document.getElementById('feedback-count-label');
+
+            if (!container) return;
+
+            if (activeList.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-slate-400 dark:text-slate-500 italic">No hay comentarios para mostrar. Cargue datos de capacitación.</div>`;
+                satTrainerEl.innerText = '0.0 / 10';
+                if (satTrainerBar) satTrainerBar.style.width = '0%';
+                satApplyEl.innerText = '0.0 / 10';
+                if (satApplyBar) satApplyBar.style.width = '0%';
+                satMoodEl.innerText = 'N/A';
+                satCommentsEl.innerText = '0';
+                if (countLabel) countLabel.innerText = '0 comentarios';
+                
+                if (charts.satMood) charts.satMood.destroy();
+                if (charts.satTrainer) charts.satTrainer.destroy();
+                return;
+            }
+
+            // 1. Calculate metrics
+            let trainerScoreSum = 0;
+            let trainerTotal = 0;
+            let applyScoreSum = 0;
+            let applyTotal = 0;
+            let moodCounts = {};
+            let trainerCounts = {};
+            let comments = [];
+
+            activeList.forEach(r => {
+                // Calificación del formador (feedback_conocimiento)
+                const trainerVal = parseSatisfactionScore(r.feedback_conocimiento);
+                if (!isNaN(trainerVal)) {
+                    trainerTotal++;
+                    trainerScoreSum += trainerVal;
+                    const valInt = Math.round(trainerVal);
+                    trainerCounts[valInt] = (trainerCounts[valInt] || 0) + 1;
+                }
+
+                // Aplicar (feedback_aplicar)
+                const applyVal = parseSatisfactionScore(r.feedback_aplicar);
+                if (!isNaN(applyVal)) {
+                    applyTotal++;
+                    applyScoreSum += applyVal;
+                }
+
+                // Sentimiento
+                const moodVal = String(r.feedback_senti || '').trim();
+                if (moodVal) {
+                    moodCounts[moodVal] = (moodCounts[moodVal] || 0) + 1;
+                }
+
+                // Comentarios
+                const commentsVal = String(r.feedback_cambiaria || '').trim();
+                if (commentsVal && commentsVal.toLowerCase() !== 'nada' && commentsVal.toLowerCase() !== 'ninguno' && commentsVal.toLowerCase() !== 'todo bien' && commentsVal.toLowerCase() !== 'ninguna' && commentsVal.toLowerCase() !== 'todo excelente' && commentsVal.length > 2) {
+                    comments.push({
+                        name: r.name,
+                        channel: r.channel,
+                        cargo: r.cargo,
+                        date: r.date,
+                        text: commentsVal,
+                        topic: r.topic
+                    });
+                }
+            });
+
+            // Update KPIs with average score out of 10
+            const satTrainerAvg = trainerTotal > 0 ? trainerScoreSum / trainerTotal : 0;
+            satTrainerEl.innerText = `${satTrainerAvg.toFixed(1)} / 10`;
+            if (satTrainerBar) satTrainerBar.style.width = `${satTrainerAvg * 10}%`;
+
+            const satApplyAvg = applyTotal > 0 ? applyScoreSum / applyTotal : 0;
+            satApplyEl.innerText = `${satApplyAvg.toFixed(1)} / 10`;
+            if (satApplyBar) satApplyBar.style.width = `${satApplyAvg * 10}%`;
+
+            // Mood
+            let topMood = 'N/A';
+            let maxMoodCount = 0;
+            Object.keys(moodCounts).forEach(m => {
+                if (moodCounts[m] > maxMoodCount) {
+                    maxMoodCount = moodCounts[m];
+                    topMood = m;
+                }
+            });
+            
+            // Map mood to emoji
+            let moodEmoji = '😊';
+            const moodLower = topMood.toLowerCase();
+            if (moodLower.includes('feliz') || moodLower.includes('excelente') || moodLower.includes('alegre')) moodEmoji = '😁';
+            else if (moodLower.includes('motivado') || moodLower.includes('bien') || moodLower.includes('interesado')) moodEmoji = '🚀';
+            else if (moodLower.includes('cansado')) moodEmoji = '🥱';
+            else if (moodLower.includes('neutral') || moodLower.includes('regular')) moodEmoji = '😐';
+            else if (moodLower.includes('aburrido')) moodEmoji = '😴';
+            else if (moodLower.includes('estresado') || moodLower.includes('preocupado')) moodEmoji = '😰';
+            
+            satMoodEl.innerText = topMood !== 'N/A' ? `${moodEmoji} ${topMood}` : 'N/A';
+
+            satCommentsEl.innerText = comments.length;
+            if (countLabel) countLabel.innerText = `${comments.length} comentarios`;
+
+            // 2. Render Comments List
+            container.innerHTML = '';
+            if (comments.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-slate-400 dark:text-slate-500 italic">No hay comentarios destacados para mostrar (todos respondieron "nada" o similar).</div>`;
+            } else {
+                comments.forEach(c => {
+                    container.innerHTML += `
+                        <div class="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-xl flex flex-col gap-2 transition hover:shadow-sm">
+                            <div class="flex justify-between items-start gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full bg-orange-100 text-win-orange font-bold text-xs flex items-center justify-center uppercase">${c.name.charAt(0)}</span>
+                                    <div class="flex flex-col flex-grow min-w-0">
+                                        <span class="font-bold text-slate-800 dark:text-slate-200 text-[11px] truncate">${c.name}</span>
+                                        <span class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold uppercase truncate">${c.channel} | ${c.cargo}</span>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded px-1.5 py-0.5 whitespace-nowrap">${c.date}</span>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 italic font-medium leading-relaxed bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-2.5 rounded-lg">
+                                <i class="fa-solid fa-quote-left text-slate-300 mr-1 text-[10px]"></i>${c.text}
+                            </p>
+                            <div class="text-[9px] text-win-orange font-bold flex items-center gap-1 uppercase">
+                                <i class="fa-solid fa-bookmark text-[8px]"></i> Tema: ${c.topic}
+                            </div>
+                        </div>`;
+                });
+            }
+
+            // 3. Draw charts
+            // Chart A: Mood Distribution (Doughnut)
+            const moodLabels = Object.keys(moodCounts);
+            const moodValues = moodLabels.map(m => moodCounts[m]);
+            
+            const moodColors = moodLabels.map(m => {
+                const ml = m.toLowerCase();
+                if (ml.includes('feliz') || ml.includes('excelente') || ml.includes('alegre')) return '#10b981'; // Green
+                if (ml.includes('motivado') || ml.includes('bien') || ml.includes('interesado')) return '#3b82f6'; // Blue
+                if (ml.includes('neutral') || ml.includes('regular') || ml.includes('tranquilo')) return '#64748b'; // Gray
+                if (ml.includes('cansado') || ml.includes('estresado')) return '#f59e0b'; // Amber
+                return '#FF5A0A'; // WIN Orange for others
+            });
+
+            if (charts.satMood) charts.satMood.destroy();
+            charts.satMood = new Chart(document.getElementById('chart-satisfaction-mood'), {
+                type: 'doughnut',
+                data: {
+                    labels: moodLabels,
+                    datasets: [{
+                        data: moodValues,
+                        backgroundColor: moodColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 10, padding: 8, font: { size: 9 } }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+
+            // Chart B: Trainer Performance (Bar)
+            const trainerLabels = Object.keys(trainerCounts);
+            const trainerValues = trainerLabels.map(t => trainerCounts[t]);
+
+            if (charts.satTrainer) charts.satTrainer.destroy();
+            charts.satTrainer = new Chart(document.getElementById('chart-satisfaction-trainer'), {
+                type: 'bar',
+                data: {
+                    labels: trainerLabels,
+                    datasets: [{
+                        label: 'Votos',
+                        data: trainerValues,
+                        backgroundColor: '#ffc200',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { grid: { color: '#f1f5f9' }, ticks: { precision: 0 } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // Render active agencies configuration list (Tab 4)
+        function renderRosterConfigTable() {
+            const tableBody = document.getElementById('roster-config-table-body');
+            const searchVal = normalizeString(document.getElementById('search-roster').value);
+
+            let displayList = activeAgencies;
+            if (searchVal) {
+                displayList = activeAgencies.filter(a => 
+                    normalizeString(a.name).includes(searchVal) ||
+                    normalizeString(a.supervisor).includes(searchVal) ||
+                    normalizeString(a.jefe).includes(searchVal)
+                );
+            }
+
+            if (displayList.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 dark:text-slate-500 italic">No se encontraron agencias activas.</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = '';
+            displayList.forEach((agency, idx) => {
+                tableBody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700">
+                        <td class="p-3 font-bold text-slate-800 dark:text-slate-200">${agency.name}</td>
+                        <td class="p-3 text-slate-600 dark:text-slate-300">${agency.supervisor}</td>
+                        <td class="p-3 text-slate-600 dark:text-slate-300">${agency.jefe}</td>
+                        <td class="p-3 text-slate-500 dark:text-slate-400 dark:text-slate-500">${agency.region}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="deleteAgency(${idx})" class="text-rose-600 hover:text-rose-800 font-bold px-2 py-1 rounded text-xs transition duration-150">
+                                <i class="fa-solid fa-trash-can"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function handleAddAgency(e) {
+            e.preventDefault();
+            const nameEl = document.getElementById('new-agency-name');
+            const superEl = document.getElementById('new-agency-supervisor');
+            const jefeEl = document.getElementById('new-agency-jefe');
+            const regionEl = document.getElementById('new-agency-region');
+
+            const newAgency = {
+                name: nameEl.value.trim().toUpperCase(),
+                supervisor: superEl.value.trim().toUpperCase(),
+                jefe: jefeEl.value.trim().toUpperCase(),
+                region: regionEl.value.trim().toUpperCase()
+            };
+
+            activeAgencies.push(newAgency);
+            localStorage.setItem('win_active_agencies', JSON.stringify(activeAgencies));
+
+            nameEl.value = '';
+            superEl.value = '';
+            jefeEl.value = '';
+            regionEl.value = '';
+
+            document.getElementById('status-roster').innerText = `Agencias: ${activeAgencies.length} activas`;
+            document.getElementById('status-roster').classList.remove('hidden');
+
+            populateFilterOptions();
+            updateDashboard();
+        }
+
+        function deleteAgency(idx) {
+            activeAgencies.splice(idx, 1);
+            localStorage.setItem('win_active_agencies', JSON.stringify(activeAgencies));
+            
+            if (activeAgencies.length === 0) {
+                document.getElementById('status-roster').classList.add('hidden');
+            } else {
+                document.getElementById('status-roster').innerText = `Agencias: ${activeAgencies.length} activas`;
+            }
+
+            populateFilterOptions();
+            updateDashboard();
+        }
+
+        function clearAgencies() {
+            if (confirm("¿Estás seguro de que deseas vaciar la lista de agencias activas? Se desvinculará el control de brechas de cobertura.")) {
+                activeAgencies = [];
+                localStorage.removeItem('win_active_agencies');
+                document.getElementById('status-roster').classList.add('hidden');
+                
+                populateFilterOptions();
+                updateDashboard();
+            }
+        }
+
+        // ----------------------------------------------------
+        // UTILITY FUNCTIONS: COPY TO CLIPBOARD & SCORE PARSING
+        // ----------------------------------------------------
+        
+        function copySingleAgent(name, score) {
+            const textToCopy = `${name} - Nota: ${score.toFixed(1)}`;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast(`Copiado: ${textToCopy}`);
+            }).catch(err => {
+                console.error("Error al copiar: ", err);
+            });
+        }
+
+        function copyAllCriticalAgents() {
+            const activeList = filteredResponses.length > 0 ? filteredResponses : responses;
+            const failedAgents = activeList
+                .filter(r => r.score < passingScore)
+                .sort((a,b) => a.score - b.score);
+            
+            if (failedAgents.length === 0) {
+                showToast("No hay agentes con notas críticas para copiar.");
+                return;
+            }
+
+            const textToCopy = failedAgents.map(a => `${a.name} - Nota: ${a.score.toFixed(1)}`).join('\n');
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("¡Toda la lista copiada al portapapeles!");
+            }).catch(err => {
+                console.error("Error al copiar la lista: ", err);
+            });
+        }
+
+        function copyAllLowAgencies() {
+            const activeList = filteredResponses.length > 0 ? filteredResponses : responses;
+            const agencyScores = {};
+            activeList.forEach(r => {
+                if (!agencyScores[r.channel]) agencyScores[r.channel] = { sum: 0, cnt: 0 };
+                agencyScores[r.channel].sum += r.score;
+                agencyScores[r.channel].cnt++;
+            });
+
+            let lowAgencies = [];
+            Object.keys(agencyScores).forEach(chan => {
+                const avg = agencyScores[chan].sum / agencyScores[chan].cnt;
+                if (avg < passingScore) {
+                    lowAgencies.push({ name: chan, avg: avg });
+                }
+            });
+
+            if (lowAgencies.length === 0) {
+                showToast("No hay agencias con nota baja para copiar.");
+                return;
+            }
+
+            const textToCopy = lowAgencies
+                .sort((a,b) => a.avg - b.avg)
+                .map(item => `${item.name} - Nota Prom: ${item.avg.toFixed(1)}`)
+                .join('\n');
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("¡Lista de agencias críticas copiada!");
+            }).catch(err => {
+                console.error("Error al copiar: ", err);
+            });
+        }
+
+        function copyAllLowTopics() {
+            const activeList = filteredResponses.length > 0 ? filteredResponses : responses;
+            const topicScores = {};
+            activeList.forEach(r => {
+                if (!topicScores[r.topic]) topicScores[r.topic] = { sum: 0, cnt: 0 };
+                topicScores[r.topic].sum += r.score;
+                topicScores[r.topic].cnt++;
+            });
+
+            let lowTopics = [];
+            Object.keys(topicScores).forEach(t => {
+                const avg = topicScores[t].sum / topicScores[t].cnt;
+                if (avg < passingScore) {
+                    lowTopics.push({ name: t, avg: avg });
+                }
+            });
+
+            if (lowTopics.length === 0) {
+                showToast("No hay temas críticos para copiar.");
+                return;
+            }
+
+            const textToCopy = lowTopics
+                .sort((a,b) => a.avg - b.avg)
+                .map(t => `${t.name} - Prom: ${t.avg.toFixed(1)}`)
+                .join('\n');
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("¡Lista de temas críticos copiada!");
+            }).catch(err => {
+                console.error("Error al copiar: ", err);
+            });
+        }
+
+        function parseSatisfactionScore(val) {
+            if (val === null || val === undefined) return NaN;
+            const num = parseFloat(val);
+            if (!isNaN(num)) return num;
+            
+            const str = String(val).toLowerCase().trim();
+            if (!str) return NaN;
+            
+            if (str.includes('totalmente de acuerdo') || str.includes('excelente') || str.includes('muy bueno')) {
+                return 10.0;
+            }
+            if (str.includes('de acuerdo') || str.includes('bueno') || str.includes('si') || str.includes('sí')) {
+                return 8.0;
+            }
+            if (str.includes('neutral') || str.includes('regular') || str.includes('normal')) {
+                return 5.0;
+            }
+            if (str.includes('en desacuerdo') || str.includes('malo')) {
+                return 2.0;
+            }
+            if (str.includes('totalmente en desacuerdo') || str.includes('muy malo') || str.includes('no')) {
+                return 0.0;
+            }
+            return NaN;
+        }
+
+        function showToast(message) {
+            let toast = document.getElementById('toast-notification');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toast-notification';
+                toast.className = 'fixed bottom-4 right-4 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-2xl transition-all duration-300 transform translate-y-10 opacity-0 z-50 flex items-center gap-2 border border-slate-800';
+                document.body.appendChild(toast);
+            }
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>${message}</span>`;
+            toast.classList.remove('translate-y-10', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-10', 'opacity-0');
+            }, 3000);
+        }
+
+        // ----------------------------------------------------
+        // TABS SWITCHING
+        // ----------------------------------------------------
+        
+        function switchTab(tabId) {
+            currentTab = tabId;
+
+            document.getElementById('tab-analytics').className = tabId === 'analytics' 
+                ? "active-tab pb-3 transition duration-200 flex items-center gap-2" 
+                : "pb-3 hover:text-win-orange border-bottom border-transparent transition duration-200 flex items-center gap-2";
+
+            document.getElementById('tab-roster-match').className = tabId === 'roster-match' 
+                ? "active-tab pb-3 transition duration-200 flex items-center gap-2" 
+                : "pb-3 hover:text-win-orange border-bottom border-transparent transition duration-200 flex items-center gap-2";
+
+            document.getElementById('tab-table-view').className = tabId === 'table-view' 
+                ? "active-tab pb-3 transition duration-200 flex items-center gap-2" 
+                : "pb-3 hover:text-win-orange border-bottom border-transparent transition duration-200 flex items-center gap-2";
+
+            document.getElementById('tab-satisfaction').className = tabId === 'satisfaction' 
+                ? "active-tab pb-3 transition duration-200 flex items-center gap-2" 
+                : "pb-3 hover:text-win-orange border-bottom border-transparent transition duration-200 flex items-center gap-2";
+
+            document.getElementById('tab-roster-settings').className = tabId === 'roster-settings' 
+                ? "active-tab pb-3 transition duration-200 flex items-center gap-2" 
+                : "pb-3 hover:text-win-orange border-bottom border-transparent transition duration-200 flex items-center gap-2";
+            
+            if (document.getElementById('tab-magic-links')) {
+                document.getElementById('tab-magic-links').className = tabId === 'magic-links' 
+                    ? "active-tab pb-3 transition duration-200 flex items-center gap-2" 
+                    : "pb-3 hover:text-win-orange border-bottom border-transparent transition duration-200 flex items-center gap-2";
+            }
+
+            document.getElementById('content-analytics').classList.toggle('hidden', tabId !== 'analytics');
+            document.getElementById('content-roster-match').classList.toggle('hidden', tabId !== 'roster-match');
+            document.getElementById('content-table-view').classList.toggle('hidden', tabId !== 'table-view');
+            document.getElementById('content-satisfaction').classList.toggle('hidden', tabId !== 'satisfaction');
+            document.getElementById('content-roster-settings').classList.toggle('hidden', tabId !== 'roster-settings');
+            if (document.getElementById('content-magic-links')) {
+                document.getElementById('content-magic-links').classList.toggle('hidden', tabId !== 'magic-links');
+            }
+
+            if (tabId === 'analytics' || tabId === 'roster-match' || tabId === 'satisfaction') {
+                updateDashboard();
+            }
+        }
+
+        function copyAgencySummary() {
+            const activeTopicFilter = document.getElementById('filter-topic').value;
+            const analysis = calculateAgencyMatching(activeTopicFilter);
+            let textToCopy = "Agencia\tEvaluados\n";
+            analysis.agenciesList.filter(a => a.trained > 0).forEach(a => {
+                textToCopy += `${a.name}\t${a.trained}\n`;
+            });
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("Resumen de agencias copiado al portapapeles.");
+            }).catch(err => {
+                alert("Error al copiar: " + err);
+            });
+        }
+
+        function copyParticipantTable() {
+            const activeList = filteredResponses.length > 0 ? filteredResponses : responses;
+            if (activeList.length === 0) {
+                alert("No hay registros para copiar.");
+                return;
+            }
+            let textToCopy = "Nombre Completo\tEmpresa / Socio\tÁrea\tCargo\tLugar / Sede\tTema\tCódigo de Aula\tFecha\tNota\n";
+            activeList.forEach(r => {
+                textToCopy += `${r.name}\t${r.channel}\t${r.area}\t${r.cargo}\t${r.lugar}\t${r.topic}\t${r.classCode || 'General'}\t${r.date}\t${r.score}\n`;
+            });
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("Tabla de participantes copiada al portapapeles.");
+            }).catch(err => {
+                alert("Error al copiar: " + err);
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+
+
