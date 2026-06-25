@@ -291,49 +291,81 @@
             document.getElementById('errorState').classList.remove('hidden');
         }
 
-        function fetchData() {
-            Papa.parse(GOOGLE_SHEETS_CSV_URL, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    processData(results.data);
-                },
-                error: function(err) {
-                    console.error("Error cargando el CSV:", err);
-                    alert("Error de conexión. Verifica la URL del Google Sheets.");
-                }
-            });
+        async function fetchData() {
+            let finalUrl = GOOGLE_SHEETS_CSV_URL;
+            if (window.location.protocol !== 'https:') {
+                finalUrl = 'https://corsproxy.io/?' + encodeURIComponent(GOOGLE_SHEETS_CSV_URL);
+            }
+
+            try {
+                const response = await fetch(finalUrl);
+                if (!response.ok) throw new Error("HTTP Error " + response.status);
+                
+                const csvText = await response.text();
+                
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        processData(results.data);
+                    },
+                    error: function(err) {
+                        throw new Error("PapaParse Error: " + err.message);
+                    }
+                });
+            } catch (err) {
+                console.error("Error de red:", err);
+                document.getElementById('loadingState').innerHTML = `<div class="text-center"><i class="fas fa-wifi text-4xl text-red-500 mb-4"></i><h2 class="text-xl font-bold text-slate-800 mb-2">Error de Conexión / Descarga</h2><p class="text-slate-600 mb-4">No se pudo descargar el archivo de Google Sheets.</p><p class="text-sm text-red-500 bg-red-50 p-2 rounded max-w-md mx-auto text-left">${err.message}</p></div>`;
+                alert("Error de conexión al intentar descargar los datos: " + err.message);
+            }
         }
 
         function processData(data) {
-            let agencyCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('agencia') || k.toLowerCase().includes('empresa') || k.toLowerCase().includes('socio'));
-            let topicCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('tema') || k.toLowerCase().includes('curso') || k.toLowerCase().includes('capacitaci'));
-            let areaCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('área') || k.toLowerCase().includes('area'));
-            let classCodeCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('código') || k.toLowerCase().includes('codigo'));
-            let lugarCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('lugar') || k.toLowerCase().includes('sede'));
-            let dateCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('marca temporal') || k.toLowerCase().includes('fecha') || k.toLowerCase().includes('date'));
-            
-            let scoreCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('punto') || k.toLowerCase().includes('nota') || k.toLowerCase().includes('calificaci'));
-            let nameCol = Object.keys(data[0] || {}).find(k => k.toLowerCase() === 'nombres' || k.toLowerCase() === 'nombre');
-            let lastNameCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('apellido'));
-            let cargoCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('cargo'));
-            let dniCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('dni') || k.toLowerCase().includes('documento'));
-            
-            if(!agencyCol) agencyCol = Object.keys(data[0] || {})[0];
+            try {
+                if (!data || data.length === 0) {
+                    throw new Error("El archivo CSV está vacío o no se pudo leer correctamente.");
+                }
+
+                let agencyCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('agencia') || k.toLowerCase().includes('empresa') || k.toLowerCase().includes('socio'));
+                let topicCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('tema') || k.toLowerCase().includes('curso') || k.toLowerCase().includes('capacitaci'));
+                let areaCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('área') || k.toLowerCase().includes('area'));
+                let classCodeCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('código') || k.toLowerCase().includes('codigo'));
+                let lugarCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('lugar') || k.toLowerCase().includes('sede'));
+                let dateCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('marca temporal') || k.toLowerCase().includes('fecha') || k.toLowerCase().includes('date'));
+                
+                let scoreCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('punto') || k.toLowerCase().includes('nota') || k.toLowerCase().includes('calificaci'));
+                let nameCol = Object.keys(data[0] || {}).find(k => k.toLowerCase() === 'nombres' || k.toLowerCase() === 'nombre');
+                let lastNameCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('apellido'));
+                let cargoCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('cargo'));
+                let dniCol = Object.keys(data[0] || {}).find(k => k.toLowerCase().includes('dni') || k.toLowerCase().includes('documento'));
+                
+                if(!agencyCol) agencyCol = Object.keys(data[0] || {})[0];
 
             let filteredData = data.filter(row => {
-                let matchAgency = row[agencyCol] && row[agencyCol].trim().toUpperCase() === agencyName.toUpperCase();
+                let agValue = row[agencyCol];
+                if (typeof agValue !== 'string') agValue = String(agValue || '');
+                let matchAgency = agValue.trim().toUpperCase() === String(agencyName || '').toUpperCase();
                 
-                let matchTopic = !filters.topic || (topicCol && row[topicCol] && row[topicCol].trim().toUpperCase() === filters.topic.toUpperCase());
-                let matchArea = !filters.area || (areaCol && row[areaCol] && row[areaCol].trim().toUpperCase() === filters.area.toUpperCase());
-                let matchClassCode = !filters.classCode || (classCodeCol && row[classCodeCol] && row[classCodeCol].trim().toUpperCase() === filters.classCode.toUpperCase());
-                let matchLugar = !filters.lugar || (lugarCol && row[lugarCol] && row[lugarCol].trim().toUpperCase() === filters.lugar.toUpperCase());
+                let topValue = row[topicCol];
+                if (typeof topValue !== 'string') topValue = String(topValue || '');
+                let matchTopic = !filters.topic || (topicCol && topValue.trim().toUpperCase() === String(filters.topic || '').toUpperCase());
+
+                let areaValue = row[areaCol];
+                if (typeof areaValue !== 'string') areaValue = String(areaValue || '');
+                let matchArea = !filters.area || (areaCol && areaValue.trim().toUpperCase() === String(filters.area || '').toUpperCase());
+
+                let ccValue = row[classCodeCol];
+                if (typeof ccValue !== 'string') ccValue = String(ccValue || '');
+                let matchClassCode = !filters.classCode || (classCodeCol && ccValue.trim().toUpperCase() === String(filters.classCode || '').toUpperCase());
+
+                let lugValue = row[lugarCol];
+                if (typeof lugValue !== 'string') lugValue = String(lugValue || '');
+                let matchLugar = !filters.lugar || (lugarCol && lugValue.trim().toUpperCase() === String(filters.lugar || '').toUpperCase());
 
                 let matchDate = true;
                 if (filters.dateStart || filters.dateEnd) {
                     if (dateCol && row[dateCol]) {
-                        let rawDate = row[dateCol].split(' ')[0];
+                        let rawDate = String(row[dateCol]).split(' ')[0];
                         let rowDateStr = "";
                         if (rawDate.includes('/')) {
                             let parts = rawDate.split('/');
@@ -411,6 +443,11 @@
 
             document.getElementById('loadingState').classList.add('hidden');
             document.getElementById('dashboardContent').classList.remove('hidden');
+            } catch (err) {
+                console.error("Critical error in processData:", err);
+                document.getElementById('loadingState').innerHTML = `<div class="text-center"><i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i><h2 class="text-xl font-bold text-slate-800 mb-2">Error de procesamiento</h2><p class="text-slate-600 mb-4">No se pudo leer la información.</p><p class="text-sm text-red-500 max-w-md mx-auto text-left bg-red-50 p-2 rounded">${err.message}</p></div>`;
+                alert("Error técnico interno: " + err.message);
+            }
         }
 
         function calculateKPIs() {
