@@ -917,13 +917,9 @@
                     </div>
                 </div>
                 
-                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-6 text-sm text-slate-700 flex flex-col gap-2">
-                    <p><strong>Paso 1:</strong> Asegúrate de haber subido el archivo <code>reporte-externo.html</code> a internet (ej. Netlify, GitHub Pages, o tu servidor web) y de configurar tu Google Sheets como "Publicado en la Web".</p>
-                    <div class="flex items-center gap-2 mt-2">
-                        <label class="font-bold whitespace-nowrap">Paso 2: Pega aquí tu URL pública:</label>
-                        <input type="text" id="public-base-url" placeholder="https://misitio.com/reporte-externo.html" class="w-full sm:w-96 px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                    </div>
-                    <p><strong>Paso 3:</strong> Haz clic en uno de los botones de arriba. El sistema creará un enlace codificado por tu selección.</p>
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl mb-6 text-sm text-slate-700 flex flex-col sm:flex-row items-center gap-4">
+                    <label class="font-bold whitespace-nowrap text-slate-600"><i class="fa-solid fa-link text-win-orange mr-1"></i> URL Base del Reporte:</label>
+                    <input type="text" id="public-base-url" value="https://cfd-capacitaciones.github.io/reportes-agencias/reporte-externo.html" class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-win-orange bg-white w-full">
                 </div>
 
                 <div class="overflow-x-auto">
